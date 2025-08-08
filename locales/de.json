@@ -1,0 +1,304 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "print": "Drucken",
+    "download": "Herunterladen",
+    "upload": "Hochladen",
+    "yes": "Ja",
+    "no": "Nein",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "close": "Schließen",
+    "open": "Öffnen",
+    "select": "Auswählen",
+    "all": "Alle",
+    "none": "Keine",
+    "required": "Erforderlich",
+    "optional": "Optional"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "recipes": "Rezepte",
+    "meal_planning": "Mahlzeitenplanung",
+    "favorites": "Favoriten",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "subscription": "Abonnement",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "register": "Registrieren"
+  },
+  "home": {
+    "title": "PrepMeal - Intelligente Mahlzeitenplanung",
+    "subtitle": "Generiere personalisierte Menüs mit saisonalen Rezepten",
+    "hero_title": "Plane deine Mahlzeiten einfach",
+    "hero_subtitle": "Entdecke Rezepte, die an deine Vorlieben und die Saison angepasst sind",
+    "cta_generate": "Meinen Plan generieren",
+    "cta_browse": "Rezepte durchsuchen",
+    "features": {
+      "seasonal": "Saisonale Zutaten",
+      "personalized": "Personalisierte Menüs",
+      "healthy": "Ausgewogene Rezepte",
+      "easy": "Einfache Zubereitung"
+    }
+  },
+  "meal_planning": {
+    "title": "Mahlzeitenplanung",
+    "generate_plan": "Plan generieren",
+    "my_plans": "Meine Pläne",
+    "preferences": "Präferenzen",
+    "period": {
+      "label": "Zeitraum",
+      "week": "1 Woche",
+      "month": "1 Monat",
+      "year": "1 Jahr"
+    },
+    "diet_type": {
+      "label": "Ernährungstyp",
+      "prise_masse": "Muskelaufbau",
+      "equilibre": "Ausgewogen",
+      "seche": "Definition",
+      "anti_cholesterol": "Anti-Cholesterin",
+      "vegan": "Vegan",
+      "vegetarien": "Vegetarisch",
+      "recettes_simples": "Einfache Rezepte",
+      "cetogene": "Ketogen",
+      "paleo": "Paleo",
+      "sans_gluten": "Glutenfrei",
+      "mediterraneen": "Mediterran"
+    },
+    "allergens": {
+      "label": "Zu vermeidende Allergene",
+      "gluten": "Gluten",
+      "lactose": "Laktose",
+      "fruits_coque": "Schalenfrüchte",
+      "oeufs": "Eier",
+      "soja": "Soja",
+      "poisson": "Fisch",
+      "crustaces": "Krebstiere",
+      "arachides": "Erdnüsse",
+      "moutarde": "Senf",
+      "celeri": "Sellerie",
+      "sulfites": "Sulfite",
+      "lupin": "Lupinen",
+      "mollusques": "Weichtiere"
+    },
+    "servings": {
+      "label": "Anzahl der Portionen",
+      "1": "1 Person",
+      "2": "2 Personen",
+      "3": "3 Personen",
+      "4": "4 Personen",
+      "5": "5 Personen",
+      "6": "6 Personen"
+    },
+    "prep_time": {
+      "label": "Maximale Zubereitungszeit",
+      "15": "15 Minuten",
+      "30": "30 Minuten",
+      "45": "45 Minuten",
+      "60": "1 Stunde",
+      "90": "1.5 Stunden",
+      "120": "2 Stunden"
+    },
+    "seasonal_ingredients": {
+      "title": "Saisonale Zutaten",
+      "description": "Wähle die saisonalen Zutaten aus, die du in deinen Mahlzeitenplan aufnehmen möchtest",
+      "select_all": "Alle auswählen",
+      "deselect_all": "Alle abwählen"
+    },
+    "generate": "Plan generieren",
+    "plan_generated": "Plan erfolgreich generiert",
+    "plan_error": "Fehler beim Generieren des Plans"
+  },
+  "recipes": {
+    "title": "Rezepte",
+    "search_placeholder": "Rezepte suchen...",
+    "filters": {
+      "title": "Filter",
+      "category": "Kategorie",
+      "difficulty": "Schwierigkeit",
+      "diet_type": "Ernährungstyp",
+      "allergens": "Allergene",
+      "prep_time": "Zubereitungszeit",
+      "season": "Saison"
+    },
+    "categories": {
+      "entree": "Vorspeise",
+      "plat_principal": "Hauptgericht",
+      "dessert": "Dessert",
+      "boisson": "Getränk",
+      "equilibre": "Ausgewogen",
+      "vegetarien": "Vegetarisch",
+      "vegan": "Vegan",
+      "sans_gluten": "Glutenfrei"
+    },
+    "difficulties": {
+      "facile": "Einfach",
+      "moyen": "Mittel",
+      "difficile": "Schwer"
+    },
+    "nutrition": {
+      "calories": "Kalorien",
+      "protein": "Protein",
+      "carbs": "Kohlenhydrate",
+      "fat": "Fett",
+      "fiber": "Ballaststoffe"
+    },
+    "ingredients": {
+      "title": "Zutaten",
+      "servings": "Portionen",
+      "add_to_shopping_list": "Zur Einkaufsliste hinzufügen"
+    },
+    "instructions": {
+      "title": "Anweisungen",
+      "step": "Schritt"
+    },
+    "favorite": {
+      "add": "Zu Favoriten hinzufügen",
+      "remove": "Aus Favoriten entfernen",
+      "added": "Zu Favoriten hinzugefügt",
+      "removed": "Aus Favoriten entfernt"
+    },
+    "related": {
+      "title": "Ähnliche Rezepte"
+    }
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "plans": {
+      "free": {
+        "name": "Kostenlos",
+        "price": "Kostenlos",
+        "period": "Monat",
+        "features": [
+          "7-Tage-Mahlzeitenplanung",
+          "Grundrezepte",
+          "Saisonale Zutaten",
+          "Favoriten (10 Rezepte)",
+          "Grundlegende Nährwertinformationen"
+        ]
+      },
+      "monthly": {
+        "name": "Monatlich",
+        "price": "€9.99",
+        "period": "Monat",
+        "features": [
+          "Unbegrenzte Mahlzeitenplanung",
+          "Alle Rezepte",
+          "Export zu PDF/iCal",
+          "Einkaufslisten-Generierung",
+          "Detaillierte Nährwertanalyse",
+          "Unbegrenzte Favoriten"
+        ]
+      },
+      "yearly": {
+        "name": "Jährlich",
+        "price": "€99.90",
+        "period": "Jahr",
+        "features": [
+          "Alle monatlichen Funktionen",
+          "2 Monate kostenlos",
+          "Prioritäts-Support",
+          "Früher Zugang zu neuen Funktionen"
+        ]
+      }
+    },
+    "current_plan": "Aktueller Plan",
+    "change_plan": "Plan ändern",
+    "cancel_subscription": "Abonnement kündigen",
+    "payment_history": "Zahlungshistorie",
+    "billing_info": "Rechnungsinformationen",
+    "subscribe": "Abonnieren",
+    "unsubscribe": "Kündigen",
+    "subscription_canceled": "Abonnement gekündigt",
+    "subscription_updated": "Abonnement aktualisiert"
+  },
+  "profile": {
+    "title": "Profil",
+    "personal_info": "Persönliche Informationen",
+    "preferences": "Präferenzen",
+    "name": "Name",
+    "email": "E-Mail",
+    "locale": "Sprache",
+    "units": "Einheiten",
+    "metric": "Metrisch",
+    "imperial": "Imperial",
+    "save_changes": "Änderungen speichern",
+    "changes_saved": "Änderungen erfolgreich gespeichert"
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "remember_me": "Angemeldet bleiben",
+      "forgot_password": "Passwort vergessen?",
+      "submit": "Anmelden",
+      "no_account": "Noch kein Konto?",
+      "register_link": "Hier registrieren"
+    },
+    "register": {
+      "title": "Registrieren",
+      "name": "Name",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "confirm_password": "Passwort bestätigen",
+      "terms": "Ich stimme den Nutzungsbedingungen zu",
+      "submit": "Registrieren",
+      "has_account": "Bereits ein Konto?",
+      "login_link": "Hier anmelden"
+    },
+    "logout": "Abmelden",
+    "logout_success": "Erfolgreich abgemeldet"
+  },
+  "errors": {
+    "404": {
+      "title": "Seite nicht gefunden",
+      "message": "Die gesuchte Seite existiert nicht.",
+      "back_home": "Zurück zur Startseite"
+    },
+    "500": {
+      "title": "Serverfehler",
+      "message": "Etwas ist schiefgelaufen. Bitte versuche es später erneut.",
+      "back_home": "Zurück zur Startseite"
+    },
+    "validation": {
+      "required": "Dieses Feld ist erforderlich",
+      "email": "Bitte gib eine gültige E-Mail-Adresse ein",
+      "min_length": "Dieses Feld muss mindestens {min} Zeichen lang sein",
+      "max_length": "Dieses Feld darf maximal {max} Zeichen lang sein",
+      "password_match": "Passwörter stimmen nicht überein"
+    }
+  },
+  "units": {
+    "weight": {
+      "g": "Gramm",
+      "kg": "Kilogramm",
+      "oz": "Unzen",
+      "lb": "Pfund"
+    },
+    "volume": {
+      "ml": "Milliliter",
+      "l": "Liter",
+      "fl_oz": "Flüssigunzen",
+      "cups": "Tassen"
+    },
+    "pieces": "Stück",
+    "tablespoon": "Esslöffel",
+    "teaspoon": "Teelöffel"
+  }
+}

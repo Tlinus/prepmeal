@@ -1,0 +1,300 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "export": "Exporter",
+    "import": "Importer",
+    "print": "Imprimer",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "yes": "Oui",
+    "no": "Non",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "select": "Sélectionner",
+    "all": "Tous",
+    "none": "Aucun",
+    "required": "Requis",
+    "optional": "Optionnel"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "recipes": "Recettes",
+    "meal_planning": "Planification",
+    "favorites": "Favoris",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "subscription": "Abonnement",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "Inscription"
+  },
+  "home": {
+    "title": "PrepMeal - Planification de repas intelligente",
+    "subtitle": "Générez vos menus personnalisés avec des recettes de saison",
+    "hero_title": "Planifiez vos repas en toute simplicité",
+    "hero_subtitle": "Découvrez des recettes adaptées à vos préférences et à la saison",
+    "cta_generate": "Générer mon planning",
+    "cta_browse": "Parcourir les recettes",
+    "features": {
+      "seasonal": "Ingrédients de saison",
+      "personalized": "Menus personnalisés",
+      "healthy": "Recettes équilibrées",
+      "easy": "Préparation simple"
+    }
+  },
+  "meal_planning": {
+    "title": "Planification de repas",
+    "generate_plan": "Générer un planning",
+    "my_plans": "Mes plannings",
+    "preferences": "Préférences",
+    "period": {
+      "label": "Période",
+      "week": "1 semaine",
+      "month": "1 mois",
+      "year": "1 année"
+    },
+    "diet_type": {
+      "label": "Type de régime",
+      "prise_masse": "Prise de masse",
+      "equilibre": "Équilibré",
+      "seche": "Sèche",
+      "anti_cholesterol": "Anti-cholestérol",
+      "vegan": "Vegan",
+      "vegetarien": "Végétarien",
+      "recettes_simples": "Recettes simples",
+      "cetogene": "Cétogène",
+      "paleo": "Paléo",
+      "sans_gluten": "Sans gluten",
+      "mediterraneen": "Méditerranéen"
+    },
+    "allergens": {
+      "label": "Allergènes à éviter",
+      "gluten": "Gluten",
+      "lactose": "Lactose",
+      "fruits_coque": "Fruits à coque",
+      "oeufs": "Œufs",
+      "soja": "Soja",
+      "poisson": "Poisson",
+      "crustaces": "Crustacés",
+      "arachides": "Arachides",
+      "moutarde": "Moutarde",
+      "celeri": "Céleri",
+      "sulfites": "Sulfites",
+      "lupin": "Lupin",
+      "mollusques": "Mollusques"
+    },
+    "servings": {
+      "label": "Nombre de portions",
+      "1": "1 personne",
+      "2": "2 personnes",
+      "3": "3 personnes",
+      "4": "4 personnes",
+      "5": "5 personnes",
+      "6": "6 personnes"
+    },
+    "max_prep_time": {
+      "label": "Temps de préparation maximum",
+      "15": "15 minutes",
+      "30": "30 minutes",
+      "45": "45 minutes",
+      "60": "1 heure",
+      "90": "1h30",
+      "120": "2 heures"
+    },
+    "units": {
+      "label": "Système d'unités",
+      "metric": "Métrique",
+      "imperial": "Impérial"
+    },
+    "generate": "Générer le planning",
+    "plan_generated": "Planning généré avec succès",
+    "plan_error": "Erreur lors de la génération du planning"
+  },
+  "recipes": {
+    "title": "Recettes",
+    "search_placeholder": "Rechercher une recette...",
+    "filter_by": "Filtrer par",
+    "sort_by": "Trier par",
+    "no_recipes": "Aucune recette trouvée",
+    "view_recipe": "Voir la recette",
+    "add_to_favorites": "Ajouter aux favoris",
+    "remove_from_favorites": "Retirer des favoris",
+    "ingredients": "Ingrédients",
+    "instructions": "Instructions",
+    "nutrition": "Valeurs nutritionnelles",
+    "prep_time": "Temps de préparation",
+    "cook_time": "Temps de cuisson",
+    "total_time": "Temps total",
+    "servings": "Portions",
+    "difficulty": "Difficulté",
+    "seasonal": "De saison",
+    "allergens": "Allergènes",
+    "dietary_restrictions": "Régimes alimentaires",
+    "tags": "Tags"
+  },
+  "diet_types": {
+    "prise_masse": "Prise de masse",
+    "equilibre": "Équilibré",
+    "seche": "Sèche",
+    "anti_cholesterol": "Anti-cholestérol",
+    "vegan": "Vegan",
+    "vegetarien": "Végétarien",
+    "recettes_simples": "Recettes simples",
+    "cetogene": "Cétogène",
+    "paleo": "Paléo",
+    "sans_gluten": "Sans gluten",
+    "mediterraneen": "Méditerranéen"
+  },
+  "allergens": {
+    "gluten": "Gluten",
+    "lactose": "Lactose",
+    "fruits_coque": "Fruits à coque",
+    "oeufs": "Œufs",
+    "soja": "Soja",
+    "poisson": "Poisson",
+    "crustaces": "Crustacés",
+    "arachides": "Arachides",
+    "moutarde": "Moutarde",
+    "celeri": "Céleri",
+    "sulfites": "Sulfites",
+    "lupin": "Lupin",
+    "mollusques": "Mollusques"
+  },
+  "seasons": {
+    "printemps": "Printemps",
+    "ete": "Été",
+    "automne": "Automne",
+    "hiver": "Hiver"
+  },
+  "units": {
+    "metric": {
+      "g": "g",
+      "kg": "kg",
+      "ml": "ml",
+      "l": "l",
+      "pieces": "pièces",
+      "cups": "tasses"
+    },
+    "imperial": {
+      "oz": "oz",
+      "lb": "lb",
+      "fl_oz": "fl oz",
+      "cups": "cups",
+      "pieces": "pieces",
+      "tbsp": "tbsp",
+      "tsp": "tsp"
+    }
+  },
+  "meal_types": {
+    "breakfast": "Petit-déjeuner",
+    "lunch": "Déjeuner",
+    "dinner": "Dîner",
+    "snack": "Collation"
+  },
+  "difficulties": {
+    "facile": "Facile",
+    "moyen": "Moyen",
+    "difficile": "Difficile"
+  },
+  "categories": {
+    "petit_dejeuner": "Petit-déjeuner",
+    "entree": "Entrée",
+    "plat_principal": "Plat principal",
+    "dessert": "Dessert",
+    "equilibre": "Équilibré",
+    "leger": "Léger",
+    "vegetarien": "Végétarien",
+    "vegan": "Vegan"
+  },
+  "time": {
+    "minutes": ":count minute",
+    "minutes_plural": ":count minutes",
+    "hours": ":count heure",
+    "hours_plural": ":count heures",
+    "hours_minutes": ":hours h :minutes min"
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "plans": {
+      "free": {
+        "name": "Gratuit",
+        "price": "0€",
+        "period": "pour toujours",
+        "features": [
+          "7 jours de planning",
+          "Recettes de base",
+          "Accès limité"
+        ]
+      },
+      "monthly": {
+        "name": "Mensuel",
+        "price": "9,99€",
+        "period": "par mois",
+        "features": [
+          "Planning illimité",
+          "Toutes les recettes",
+          "Export PDF",
+          "Support prioritaire"
+        ]
+      },
+      "yearly": {
+        "name": "Annuel",
+        "price": "99,99€",
+        "period": "par an",
+        "features": [
+          "Planning illimité",
+          "Toutes les recettes",
+          "Export PDF",
+          "Support prioritaire",
+          "2 mois gratuits"
+        ]
+      }
+    },
+    "subscribe": "S'abonner",
+    "manage": "Gérer l'abonnement",
+    "cancel": "Annuler l'abonnement",
+    "history": "Historique des paiements"
+  },
+  "profile": {
+    "title": "Profil",
+    "personal_info": "Informations personnelles",
+    "preferences": "Préférences",
+    "allergens": "Allergènes",
+    "dietary_restrictions": "Régimes alimentaires",
+    "units": "Système d'unités",
+    "language": "Langue",
+    "save_changes": "Enregistrer les modifications",
+    "changes_saved": "Modifications enregistrées"
+  },
+  "errors": {
+    "404": "Page non trouvée",
+    "500": "Erreur serveur",
+    "unauthorized": "Accès non autorisé",
+    "forbidden": "Accès interdit",
+    "validation": "Erreur de validation",
+    "network": "Erreur réseau",
+    "unknown": "Erreur inconnue"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "email": "Format d'email invalide",
+    "min_length": "Minimum :min caractères",
+    "max_length": "Maximum :max caractères",
+    "numeric": "Valeur numérique requise",
+    "integer": "Nombre entier requis",
+    "positive": "Valeur positive requise"
+  }
+}

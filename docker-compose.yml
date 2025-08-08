@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prepmeal_app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./logs:/var/www/html/logs
+      - ./cache:/var/www/html/cache
+      - ./public/uploads:/var/www/html/public/uploads
+    environment:
+      - DB_HOST=db
+      - DB_NAME=prepmeal
+      - DB_USER=prepmeal_user
+      - DB_PASS=prepmeal_password
+      - APP_ENV=production
+      - APP_DEBUG=false
+    depends_on:
+      - db
+    networks:
+      - prepmeal_network
+
+  db:
+    image: mysql:8.0
+    container_name: prepmeal_db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=prepmeal
+      - MYSQL_USER=prepmeal_user
+      - MYSQL_PASSWORD=prepmeal_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - prepmeal_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: prepmeal_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+      - ./public:/var/www/html/public
+    depends_on:
+      - app
+    networks:
+      - prepmeal_network
+
+volumes:
+  mysql_data:
+
+networks:
+  prepmeal_network:
+    driver: bridge

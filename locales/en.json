@@ -1,0 +1,304 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "import": "Import",
+    "print": "Print",
+    "download": "Download",
+    "upload": "Upload",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "open": "Open",
+    "select": "Select",
+    "all": "All",
+    "none": "None",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "navigation": {
+    "home": "Home",
+    "recipes": "Recipes",
+    "meal_planning": "Meal Planning",
+    "favorites": "Favorites",
+    "profile": "Profile",
+    "settings": "Settings",
+    "subscription": "Subscription",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "home": {
+    "title": "PrepMeal - Smart Meal Planning",
+    "subtitle": "Generate personalized menus with seasonal recipes",
+    "hero_title": "Plan your meals with ease",
+    "hero_subtitle": "Discover recipes adapted to your preferences and the season",
+    "cta_generate": "Generate my plan",
+    "cta_browse": "Browse recipes",
+    "features": {
+      "seasonal": "Seasonal ingredients",
+      "personalized": "Personalized menus",
+      "healthy": "Balanced recipes",
+      "easy": "Simple preparation"
+    }
+  },
+  "meal_planning": {
+    "title": "Meal Planning",
+    "generate_plan": "Generate a plan",
+    "my_plans": "My plans",
+    "preferences": "Preferences",
+    "period": {
+      "label": "Period",
+      "week": "1 week",
+      "month": "1 month",
+      "year": "1 year"
+    },
+    "diet_type": {
+      "label": "Diet type",
+      "prise_masse": "Muscle gain",
+      "equilibre": "Balanced",
+      "seche": "Cutting",
+      "anti_cholesterol": "Anti-cholesterol",
+      "vegan": "Vegan",
+      "vegetarien": "Vegetarian",
+      "recettes_simples": "Simple recipes",
+      "cetogene": "Ketogenic",
+      "paleo": "Paleo",
+      "sans_gluten": "Gluten-free",
+      "mediterraneen": "Mediterranean"
+    },
+    "allergens": {
+      "label": "Allergens to avoid",
+      "gluten": "Gluten",
+      "lactose": "Lactose",
+      "fruits_coque": "Tree nuts",
+      "oeufs": "Eggs",
+      "soja": "Soy",
+      "poisson": "Fish",
+      "crustaces": "Shellfish",
+      "arachides": "Peanuts",
+      "moutarde": "Mustard",
+      "celeri": "Celery",
+      "sulfites": "Sulfites",
+      "lupin": "Lupin",
+      "mollusques": "Molluscs"
+    },
+    "servings": {
+      "label": "Number of servings",
+      "1": "1 person",
+      "2": "2 people",
+      "3": "3 people",
+      "4": "4 people",
+      "5": "5 people",
+      "6": "6 people"
+    },
+    "prep_time": {
+      "label": "Maximum preparation time",
+      "15": "15 minutes",
+      "30": "30 minutes",
+      "45": "45 minutes",
+      "60": "1 hour",
+      "90": "1.5 hours",
+      "120": "2 hours"
+    },
+    "seasonal_ingredients": {
+      "title": "Seasonal ingredients",
+      "description": "Select the seasonal ingredients you want to include in your meal plan",
+      "select_all": "Select all",
+      "deselect_all": "Deselect all"
+    },
+    "generate": "Generate plan",
+    "plan_generated": "Plan generated successfully",
+    "plan_error": "Error generating plan"
+  },
+  "recipes": {
+    "title": "Recipes",
+    "search_placeholder": "Search recipes...",
+    "filters": {
+      "title": "Filters",
+      "category": "Category",
+      "difficulty": "Difficulty",
+      "diet_type": "Diet type",
+      "allergens": "Allergens",
+      "prep_time": "Preparation time",
+      "season": "Season"
+    },
+    "categories": {
+      "entree": "Starter",
+      "plat_principal": "Main course",
+      "dessert": "Dessert",
+      "boisson": "Beverage",
+      "equilibre": "Balanced",
+      "vegetarien": "Vegetarian",
+      "vegan": "Vegan",
+      "sans_gluten": "Gluten-free"
+    },
+    "difficulties": {
+      "facile": "Easy",
+      "moyen": "Medium",
+      "difficile": "Hard"
+    },
+    "nutrition": {
+      "calories": "Calories",
+      "protein": "Protein",
+      "carbs": "Carbohydrates",
+      "fat": "Fat",
+      "fiber": "Fiber"
+    },
+    "ingredients": {
+      "title": "Ingredients",
+      "servings": "servings",
+      "add_to_shopping_list": "Add to shopping list"
+    },
+    "instructions": {
+      "title": "Instructions",
+      "step": "Step"
+    },
+    "favorite": {
+      "add": "Add to favorites",
+      "remove": "Remove from favorites",
+      "added": "Added to favorites",
+      "removed": "Removed from favorites"
+    },
+    "related": {
+      "title": "Related recipes"
+    }
+  },
+  "subscription": {
+    "title": "Subscription",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "Free",
+        "period": "month",
+        "features": [
+          "7-day meal planning",
+          "Basic recipes",
+          "Seasonal ingredients",
+          "Favorites (10 recipes)",
+          "Basic nutritional info"
+        ]
+      },
+      "monthly": {
+        "name": "Monthly",
+        "price": "€9.99",
+        "period": "month",
+        "features": [
+          "Unlimited meal planning",
+          "All recipes",
+          "Export to PDF/iCal",
+          "Shopping list generation",
+          "Detailed nutritional analysis",
+          "Unlimited favorites"
+        ]
+      },
+      "yearly": {
+        "name": "Yearly",
+        "price": "€99.90",
+        "period": "year",
+        "features": [
+          "All monthly features",
+          "2 months free",
+          "Priority support",
+          "Early access to new features"
+        ]
+      }
+    },
+    "current_plan": "Current plan",
+    "change_plan": "Change plan",
+    "cancel_subscription": "Cancel subscription",
+    "payment_history": "Payment history",
+    "billing_info": "Billing information",
+    "subscribe": "Subscribe",
+    "unsubscribe": "Unsubscribe",
+    "subscription_canceled": "Subscription canceled",
+    "subscription_updated": "Subscription updated"
+  },
+  "profile": {
+    "title": "Profile",
+    "personal_info": "Personal information",
+    "preferences": "Preferences",
+    "name": "Name",
+    "email": "Email",
+    "locale": "Language",
+    "units": "Units",
+    "metric": "Metric",
+    "imperial": "Imperial",
+    "save_changes": "Save changes",
+    "changes_saved": "Changes saved successfully"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "remember_me": "Remember me",
+      "forgot_password": "Forgot password?",
+      "submit": "Login",
+      "no_account": "Don't have an account?",
+      "register_link": "Register here"
+    },
+    "register": {
+      "title": "Register",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirm_password": "Confirm password",
+      "terms": "I agree to the terms and conditions",
+      "submit": "Register",
+      "has_account": "Already have an account?",
+      "login_link": "Login here"
+    },
+    "logout": "Logout",
+    "logout_success": "Logged out successfully"
+  },
+  "errors": {
+    "404": {
+      "title": "Page not found",
+      "message": "The page you're looking for doesn't exist.",
+      "back_home": "Back to home"
+    },
+    "500": {
+      "title": "Server error",
+      "message": "Something went wrong. Please try again later.",
+      "back_home": "Back to home"
+    },
+    "validation": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "min_length": "This field must be at least {min} characters long",
+      "max_length": "This field must be no more than {max} characters long",
+      "password_match": "Passwords do not match"
+    }
+  },
+  "units": {
+    "weight": {
+      "g": "grams",
+      "kg": "kilograms",
+      "oz": "ounces",
+      "lb": "pounds"
+    },
+    "volume": {
+      "ml": "milliliters",
+      "l": "liters",
+      "fl_oz": "fluid ounces",
+      "cups": "cups"
+    },
+    "pieces": "pieces",
+    "tablespoon": "tablespoon",
+    "teaspoon": "teaspoon"
+  }
+}
