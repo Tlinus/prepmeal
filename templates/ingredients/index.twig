@@ -1,0 +1,300 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ t('ingredients.title') }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ t('ingredients.title') }}</h1>
+            <p class="text-xl text-gray-600">{{ t('ingredients.subtitle') }}</p>
+            <div class="mt-4">
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    {{ t('ingredients.current_season') }}: {{ t('seasons.' ~ currentSeason) }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Preferences Form -->
+        <form id="ingredientsForm" class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <!-- Diet Type Selection -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('meal_planning.diet_type.label') }}</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {% for dietKey, dietNames in dietTypes %}
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input type="radio" name="diet_type" value="{{ dietKey }}" class="mr-3" 
+                               {% if dietKey == 'equilibre' %}checked{% endif %}>
+                        <span class="text-sm font-medium">{{ dietNames[locale] }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Allergens Filter -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('meal_planning.allergens.label') }}</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {% for allergenKey, allergenNames in allergens %}
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" name="excluded_allergens[]" value="{{ allergenKey }}" class="mr-3">
+                        <span class="text-sm font-medium">{{ allergenNames[locale] }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Period Selection -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('meal_planning.period.label') }}</h3>
+                <div class="flex space-x-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="period" value="week" class="mr-2" checked>
+                        <span>{{ t('meal_planning.period.week') }}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="period" value="month" class="mr-2">
+                        <span>{{ t('meal_planning.period.month') }}</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="period" value="year" class="mr-2">
+                        <span>{{ t('meal_planning.period.year') }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Servings -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ t('meal_planning.servings.label') }}</h3>
+                <div class="flex items-center space-x-4">
+                    <input type="number" name="servings" value="2" min="1" max="10" 
+                           class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <span class="text-gray-600">{{ t('meal_planning.servings.persons') }}</span>
+                </div>
+            </div>
+        </form>
+
+        <!-- Seasonal Ingredients Selection -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">{{ t('ingredients.seasonal_selection') }}</h3>
+                <div class="flex space-x-2">
+                    <button type="button" id="selectAll" class="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+                        {{ t('ingredients.select_all') }}
+                    </button>
+                    <button type="button" id="deselectAll" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800">
+                        {{ t('ingredients.deselect_all') }}
+                    </button>
+                </div>
+            </div>
+
+            <div id="seasonalIngredients" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {% for ingredientKey, ingredientNames in seasonalIngredients %}
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-green-50 transition-colors bg-green-50 border-green-200">
+                    <input type="checkbox" name="selected_ingredients[]" value="{{ ingredientKey }}" 
+                           class="mr-3 text-green-600 focus:ring-green-500" checked>
+                    <div>
+                        <span class="text-sm font-medium text-gray-900">{{ ingredientNames[locale] }}</span>
+                        <div class="flex items-center mt-1">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ t('ingredients.seasonal') }}
+                            </span>
+                        </div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex justify-center space-x-4">
+            <button type="button" id="savePreferences" 
+                    class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                {{ t('ingredients.save_preferences') }}
+            </button>
+            <button type="button" id="generatePlan" 
+                    class="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                {{ t('ingredients.generate_plan') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span class="text-gray-700">{{ t('common.loading') }}</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('ingredientsForm');
+    const seasonalIngredients = document.getElementById('seasonalIngredients');
+    const selectAllBtn = document.getElementById('selectAll');
+    const deselectAllBtn = document.getElementById('deselectAll');
+    const savePreferencesBtn = document.getElementById('savePreferences');
+    const generatePlanBtn = document.getElementById('generatePlan');
+    const loadingModal = document.getElementById('loadingModal');
+
+    // Select/Deselect all ingredients
+    selectAllBtn.addEventListener('click', function() {
+        const checkboxes = seasonalIngredients.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = true);
+    });
+
+    deselectAllBtn.addEventListener('click', function() {
+        const checkboxes = seasonalIngredients.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+    });
+
+    // Save preferences
+    savePreferencesBtn.addEventListener('click', function() {
+        const formData = new FormData(form);
+        const selectedIngredients = Array.from(seasonalIngredients.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        const preferences = {
+            selected_ingredients: selectedIngredients,
+            excluded_allergens: formData.getAll('excluded_allergens[]'),
+            diet_type: formData.get('diet_type'),
+            servings: formData.get('servings'),
+            period: formData.get('period')
+        };
+
+        fetch('/api/preferences', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(preferences)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('{{ t("ingredients.preferences_saved") }}', 'success');
+            } else {
+                showNotification('{{ t("ingredients.preferences_error") }}', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('{{ t("ingredients.preferences_error") }}', 'error');
+        });
+    });
+
+    // Generate meal plan
+    generatePlanBtn.addEventListener('click', function() {
+        const formData = new FormData(form);
+        const selectedIngredients = Array.from(seasonalIngredients.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        const planData = {
+            selected_ingredients: selectedIngredients,
+            excluded_allergens: formData.getAll('excluded_allergens[]'),
+            diet_type: formData.get('diet_type'),
+            servings: formData.get('servings'),
+            period: formData.get('period')
+        };
+
+        loadingModal.classList.remove('hidden');
+
+        fetch('/api/generate-plan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(planData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingModal.classList.add('hidden');
+            if (data.success) {
+                window.location.href = `/plan/${data.plan_id}`;
+            } else {
+                showNotification(data.message || '{{ t("ingredients.plan_generation_error") }}', 'error');
+            }
+        })
+        .catch(error => {
+            loadingModal.classList.add('hidden');
+            console.error('Error:', error);
+            showNotification('{{ t("ingredients.plan_generation_error") }}', 'error');
+        });
+    });
+
+    // Filter ingredients based on allergens
+    const allergenCheckboxes = form.querySelectorAll('input[name="excluded_allergens[]"]');
+    allergenCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const excludedAllergens = Array.from(allergenCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            if (excludedAllergens.length > 0) {
+                fetch(`/api/seasonal-ingredients?allergens=${excludedAllergens.join(',')}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateIngredientsList(data.ingredients);
+                        }
+                    });
+            } else {
+                // Reload all ingredients
+                fetch('/api/seasonal-ingredients')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateIngredientsList(data.ingredients);
+                        }
+                    });
+            }
+        });
+    });
+
+    function updateIngredientsList(ingredients) {
+        seasonalIngredients.innerHTML = '';
+        Object.entries(ingredients).forEach(([key, names]) => {
+            const label = document.createElement('label');
+            label.className = 'flex items-center p-4 border rounded-lg cursor-pointer hover:bg-green-50 transition-colors bg-green-50 border-green-200';
+            label.innerHTML = `
+                <input type="checkbox" name="selected_ingredients[]" value="${key}" 
+                       class="mr-3 text-green-600 focus:ring-green-500" checked>
+                <div>
+                    <span class="text-sm font-medium text-gray-900">${names['{{ locale }}']}</span>
+                    <div class="flex items-center mt-1">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {{ t('ingredients.seasonal') }}
+                        </span>
+                    </div>
+                </div>
+            `;
+            seasonalIngredients.appendChild(label);
+        });
+    }
+
+    function showNotification(message, type) {
+        // Simple notification implementation
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+            type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}
+

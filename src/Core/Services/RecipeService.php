@@ -18,19 +18,35 @@ class RecipeService
 
     public function getAllRecipes(array $filters = []): array
     {
-        return $this->recipeRepository->findAll($filters);
+        try {
+            return $this->recipeRepository->findAll($filters);
+        } catch (\PDOException $e) {
+            // Si les tables n'existent pas encore, retourner un tableau vide
+            return [];
+        }
     }
 
     public function getRecipeById(string $id): ?Recipe
     {
-        return $this->recipeRepository->findById($id);
+        try {
+            return $this->recipeRepository->findById($id);
+        } catch (\PDOException $e) {
+            // Si les tables n'existent pas encore, retourner null
+            return null;
+        }
     }
 
     public function getPopularRecipes(int $limit = 10): array
     {
-        // Pour l'exemple, on retourne des recettes aléatoires
-        // En production, vous pourriez implémenter un système de popularité
-        return $this->recipeRepository->getRandomRecipes($limit);
+        try {
+            // Pour l'exemple, on retourne des recettes aléatoires
+            // En production, vous pourriez implémenter un système de popularité
+            return $this->recipeRepository->getRandomRecipes($limit);
+        } catch (\PDOException $e) {
+            // Si les tables n'existent pas encore, retourner un tableau vide
+            // L'initialisation de la base de données se fera automatiquement
+            return [];
+        }
     }
 
     public function getSeasonalRecipes(string $season, int $limit = 10): array
@@ -243,5 +259,100 @@ class RecipeService
         }
 
         return $difficulties;
+    }
+
+    // Alias methods for backward compatibility
+    public function getRecipes(array $filters = [], string $locale = 'en'): array
+    {
+        return $this->getAllRecipes($filters);
+    }
+
+    public function getCategories(): array
+    {
+        return $this->getRecipeCategories();
+    }
+
+    public function getDifficulties(): array
+    {
+        return $this->getRecipeDifficulties();
+    }
+
+    public function getDietTypes(): array
+    {
+        $allRecipes = $this->recipeRepository->findAll();
+        $dietTypes = [];
+
+        foreach ($allRecipes as $recipe) {
+            foreach ($recipe->getDietaryRestrictions() as $dietType) {
+                if (!isset($dietTypes[$dietType])) {
+                    $dietTypes[$dietType] = 0;
+                }
+                $dietTypes[$dietType]++;
+            }
+        }
+
+        return $dietTypes;
+    }
+
+    public function getAllergens(): array
+    {
+        $allRecipes = $this->recipeRepository->findAll();
+        $allergens = [];
+
+        foreach ($allRecipes as $recipe) {
+            foreach ($recipe->getAllergens() as $allergen) {
+                if (!isset($allergens[$allergen])) {
+                    $allergens[$allergen] = 0;
+                }
+                $allergens[$allergen]++;
+            }
+        }
+
+        return $allergens;
+    }
+
+    public function getRecipe(string $id, string $locale = 'en'): ?Recipe
+    {
+        return $this->getRecipeById($id);
+    }
+
+    public function getRelatedRecipes(Recipe $recipe, string $locale = 'en'): array
+    {
+        $relatedRecipes = [];
+        
+        // Get recipes from the same category
+        $categoryRecipes = $this->getRecipesByCategory($recipe->getCategory());
+        foreach ($categoryRecipes as $relatedRecipe) {
+            if ($relatedRecipe->getId() !== $recipe->getId()) {
+                $relatedRecipes[] = $relatedRecipe;
+            }
+        }
+
+        // Get recipes with similar difficulty
+        $difficultyRecipes = $this->getRecipesByDifficulty($recipe->getDifficulty());
+        foreach ($difficultyRecipes as $relatedRecipe) {
+            if ($relatedRecipe->getId() !== $recipe->getId() && !in_array($relatedRecipe, $relatedRecipes)) {
+                $relatedRecipes[] = $relatedRecipe;
+            }
+        }
+
+        // Limit to 6 related recipes
+        return array_slice($relatedRecipes, 0, 6);
+    }
+
+    public function isFavorite(string $recipeId, int $userId): bool
+    {
+        $favorites = $this->getUserFavorites($userId);
+        foreach ($favorites as $favorite) {
+            if ($favorite->getId() === $recipeId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getFavorites(int $userId, string $locale = 'en'): array
+    {
+        return $this->getUserFavorites($userId);
     }
 }

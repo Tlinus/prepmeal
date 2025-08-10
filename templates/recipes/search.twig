@@ -1,0 +1,127 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ translations.recipes.search_results }} - {{ searchTerm }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <div class="flex items-center mb-4">
+            <a href="/recipes" class="text-blue-600 hover:text-blue-800 mr-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900">{{ translations.recipes.search_results }}</h1>
+        </div>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p class="text-blue-800">
+                <span class="font-medium">{{ translations.recipes.searching_for }}:</span> 
+                <span class="italic">"{{ searchTerm }}"</span>
+            </p>
+            <p class="text-blue-700 text-sm mt-1">
+                {{ recipes|length }} {{ translations.recipes.recipes_found }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Résultats de recherche -->
+    {% if recipes %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for recipe in recipes %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="relative">
+                {% if recipe.image %}
+                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <span class="text-gray-400">{{ translations.recipes.no_image }}</span>
+                </div>
+                {% endif %}
+                
+                {% if recipe.is_favorite %}
+                <div class="absolute top-2 right-2">
+                    <span class="bg-red-500 text-white p-2 rounded-full">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="p-4">
+                <h3 class="font-semibold text-lg text-gray-900 mb-2">{{ recipe.title }}</h3>
+                
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                    <span class="mr-4">{{ recipe.cooking_time }} {{ translations.recipes.minutes }}</span>
+                    <span class="mr-4">{{ recipe.difficulty }}</span>
+                    <span>{{ recipe.servings }} {{ translations.recipes.servings }}</span>
+                </div>
+
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ recipe.description }}</p>
+
+                <div class="flex justify-between items-center">
+                    <a href="/recipes/{{ recipe.id }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        {{ translations.recipes.view_recipe }}
+                    </a>
+                    
+                    <button class="text-gray-400 hover:text-red-500 transition-colors" 
+                            onclick="toggleFavorite({{ recipe.id }})">
+                        <svg class="w-5 h-5" fill="{{ recipe.is_favorite ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ translations.recipes.no_search_results }}</h3>
+        <p class="text-gray-600 mb-6">{{ translations.recipes.try_different_keywords }}</p>
+        
+        <div class="space-y-2">
+            <p class="text-sm text-gray-500">{{ translations.recipes.search_tips }}</p>
+            <ul class="text-sm text-gray-500 list-disc list-inside">
+                <li>{{ translations.recipes.use_generic_terms }}</li>
+                <li>{{ translations.recipes.check_spelling }}</li>
+                <li>{{ translations.recipes.try_synonyms }}</li>
+            </ul>
+        </div>
+        
+        <div class="mt-6">
+            <a href="/recipes" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                {{ translations.recipes.browse_all_recipes }}
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleFavorite(recipeId) {
+    fetch(`/recipes/${recipeId}/favorite`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+{% endblock %}

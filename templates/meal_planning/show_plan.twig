@@ -1,0 +1,458 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ plan.title|default('Planning') }} - PrepMeal{% endblock %}
+
+{% block head %}
+<style>
+    .plan-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .day-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .day-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+    }
+    
+    .day-header {
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .meal-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .meal-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .meal-header {
+        background: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .meal-content {
+        padding: 1rem;
+    }
+    
+    .nutrition-badge {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .ingredient-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .ingredient-list li {
+        padding: 0.25rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .ingredient-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .nutritional-summary {
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .nutrition-chart {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .progress-custom {
+        height: 8px;
+        border-radius: 4px;
+    }
+    
+    .shopping-list {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .category-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .category-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .action-buttons {
+        position: sticky;
+        top: 1rem;
+        z-index: 1000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Plan Header -->
+    <div class="plan-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    <i class="fas fa-calendar-check me-3"></i>{{ plan.title|default('Planning de repas') }}
+                </h1>
+                <p class="lead mb-0">
+                    <i class="fas fa-calendar me-2"></i>
+                    {{ plan.start_date|date('d/m/Y') }} - {{ plan.end_date|date('d/m/Y') }}
+                    <span class="badge bg-light text-dark ms-2">{{ plan.total_days|default(7) }} jours</span>
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="action-buttons">
+                    <div class="btn-group-vertical d-grid gap-2">
+                        <a href="/export/meal-plan/{{ plan.id }}" class="btn btn-light">
+                            <i class="fas fa-file-pdf me-2"></i>Exporter PDF
+                        </a>
+                        <a href="/export/meal-plan/{{ plan.id }}?format=ical" class="btn btn-light">
+                            <i class="fas fa-calendar me-2"></i>Exporter iCal
+                        </a>
+                        <a href="/meal-planning/{{ plan.id }}/shopping-list" class="btn btn-light">
+                            <i class="fas fa-shopping-cart me-2"></i>Liste de courses
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nutritional Summary -->
+    {% if nutritionalBalance %}
+    <div class="nutritional-summary">
+        <h3 class="mb-4">
+            <i class="fas fa-chart-pie me-2"></i>{{ translations.meal_planning.nutritional_summary|default('Résumé nutritionnel') }}
+        </h3>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="nutrition-chart text-center">
+                    <h4 class="text-primary mb-2">{{ nutritionalBalance.total_calories|default(0) }}</h4>
+                    <p class="text-muted mb-0">Calories totales</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="nutrition-chart text-center">
+                    <h4 class="text-success mb-2">{{ nutritionalBalance.total_protein|default(0) }}g</h4>
+                    <p class="text-muted mb-0">Protéines</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="nutrition-chart text-center">
+                    <h4 class="text-warning mb-2">{{ nutritionalBalance.total_carbs|default(0) }}g</h4>
+                    <p class="text-muted mb-0">Glucides</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="nutrition-chart text-center">
+                    <h4 class="text-info mb-2">{{ nutritionalBalance.total_fat|default(0) }}g</h4>
+                    <p class="text-muted mb-0">Lipides</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nutrition Progress Bars -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <label class="form-label">Protéines</label>
+                <div class="progress progress-custom">
+                    <div class="progress-bar bg-success" style="width: {{ (nutritionalBalance.total_protein / 150) * 100 }}%"></div>
+                </div>
+                <small class="text-muted">{{ nutritionalBalance.total_protein|default(0) }}g / 150g recommandé</small>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Glucides</label>
+                <div class="progress progress-custom">
+                    <div class="progress-bar bg-warning" style="width: {{ (nutritionalBalance.total_carbs / 300) * 100 }}%"></div>
+                </div>
+                <small class="text-muted">{{ nutritionalBalance.total_carbs|default(0) }}g / 300g recommandé</small>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Lipides</label>
+                <div class="progress progress-custom">
+                    <div class="progress-bar bg-info" style="width: {{ (nutritionalBalance.total_fat / 65) * 100 }}%"></div>
+                </div>
+                <small class="text-muted">{{ nutritionalBalance.total_fat|default(0) }}g / 65g recommandé</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Meal Plan -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-utensils me-2"></i>{{ translations.meal_planning.meal_plan|default('Planning des repas') }}
+            </h3>
+        </div>
+    </div>
+
+    {% if plan.days %}
+    {% for day in plan.days %}
+    <div class="day-card">
+        <div class="day-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-calendar-day me-2"></i>{{ day.date|date('l d/m/Y')|title }}
+                </h4>
+                <span class="badge bg-primary">{{ day.day_name|default(day.date|date('l'))|title }}</span>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <!-- Breakfast -->
+                <div class="col-md-4">
+                    <div class="meal-card">
+                        <div class="meal-header">
+                            <h6 class="mb-0 text-primary">
+                                <i class="fas fa-sun me-2"></i>{{ translations.meal_planning.breakfast|default('Petit-déjeuner') }}
+                            </h6>
+                        </div>
+                        {% if day.meals.breakfast %}
+                        <div class="meal-content">
+                            <h6 class="fw-bold">{{ day.meals.breakfast.title }}</h6>
+                            <p class="text-muted small">{{ day.meals.breakfast.description }}</p>
+                            
+                            <!-- Nutrition Info -->
+                            {% if day.meals.breakfast.nutrition %}
+                            <div class="d-flex gap-2 mb-2">
+                                <span class="nutrition-badge">{{ day.meals.breakfast.nutrition.calories|default(0) }} cal</span>
+                                <span class="nutrition-badge">{{ day.meals.breakfast.nutrition.protein|default(0) }}g protéines</span>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Ingredients -->
+                            {% if day.meals.breakfast.ingredients %}
+                            <h6 class="fw-semibold mb-2">{{ translations.common.ingredients|default('Ingrédients') }}</h6>
+                            <ul class="ingredient-list">
+                                {% for ingredient in day.meals.breakfast.ingredients %}
+                                <li>
+                                    <span class="fw-medium">{{ ingredient.name }}</span>
+                                    <span class="text-muted float-end">{{ ingredient.quantity }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            
+                            <a href="/recipes/{{ day.meals.breakfast.id }}" class="btn btn-outline-primary btn-sm mt-2">
+                                <i class="fas fa-eye me-1"></i>{{ translations.common.view|default('Voir la recette') }}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="meal-content text-center text-muted">
+                            <i class="fas fa-utensils fa-2x mb-2"></i>
+                            <p class="mb-0">{{ translations.meal_planning.no_meal|default('Aucun repas défini') }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Lunch -->
+                <div class="col-md-4">
+                    <div class="meal-card">
+                        <div class="meal-header">
+                            <h6 class="mb-0 text-success">
+                                <i class="fas fa-cloud-sun me-2"></i>{{ translations.meal_planning.lunch|default('Déjeuner') }}
+                            </h6>
+                        </div>
+                        {% if day.meals.lunch %}
+                        <div class="meal-content">
+                            <h6 class="fw-bold">{{ day.meals.lunch.title }}</h6>
+                            <p class="text-muted small">{{ day.meals.lunch.description }}</p>
+                            
+                            <!-- Nutrition Info -->
+                            {% if day.meals.lunch.nutrition %}
+                            <div class="d-flex gap-2 mb-2">
+                                <span class="nutrition-badge">{{ day.meals.lunch.nutrition.calories|default(0) }} cal</span>
+                                <span class="nutrition-badge">{{ day.meals.lunch.nutrition.protein|default(0) }}g protéines</span>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Ingredients -->
+                            {% if day.meals.lunch.ingredients %}
+                            <h6 class="fw-semibold mb-2">{{ translations.common.ingredients|default('Ingrédients') }}</h6>
+                            <ul class="ingredient-list">
+                                {% for ingredient in day.meals.lunch.ingredients %}
+                                <li>
+                                    <span class="fw-medium">{{ ingredient.name }}</span>
+                                    <span class="text-muted float-end">{{ ingredient.quantity }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            
+                            <a href="/recipes/{{ day.meals.lunch.id }}" class="btn btn-outline-success btn-sm mt-2">
+                                <i class="fas fa-eye me-1"></i>{{ translations.common.view|default('Voir la recette') }}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="meal-content text-center text-muted">
+                            <i class="fas fa-utensils fa-2x mb-2"></i>
+                            <p class="mb-0">{{ translations.meal_planning.no_meal|default('Aucun repas défini') }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Dinner -->
+                <div class="col-md-4">
+                    <div class="meal-card">
+                        <div class="meal-header">
+                            <h6 class="mb-0 text-warning">
+                                <i class="fas fa-moon me-2"></i>{{ translations.meal_planning.dinner|default('Dîner') }}
+                            </h6>
+                        </div>
+                        {% if day.meals.dinner %}
+                        <div class="meal-content">
+                            <h6 class="fw-bold">{{ day.meals.dinner.title }}</h6>
+                            <p class="text-muted small">{{ day.meals.dinner.description }}</p>
+                            
+                            <!-- Nutrition Info -->
+                            {% if day.meals.dinner.nutrition %}
+                            <div class="d-flex gap-2 mb-2">
+                                <span class="nutrition-badge">{{ day.meals.dinner.nutrition.calories|default(0) }} cal</span>
+                                <span class="nutrition-badge">{{ day.meals.dinner.nutrition.protein|default(0) }}g protéines</span>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Ingredients -->
+                            {% if day.meals.dinner.ingredients %}
+                            <h6 class="fw-semibold mb-2">{{ translations.common.ingredients|default('Ingrédients') }}</h6>
+                            <ul class="ingredient-list">
+                                {% for ingredient in day.meals.dinner.ingredients %}
+                                <li>
+                                    <span class="fw-medium">{{ ingredient.name }}</span>
+                                    <span class="text-muted float-end">{{ ingredient.quantity }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            
+                            <a href="/recipes/{{ day.meals.dinner.id }}" class="btn btn-outline-warning btn-sm mt-2">
+                                <i class="fas fa-eye me-1"></i>{{ translations.common.view|default('Voir la recette') }}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="meal-content text-center text-muted">
+                            <i class="fas fa-utensils fa-2x mb-2"></i>
+                            <p class="mb-0">{{ translations.meal_planning.no_meal|default('Aucun repas défini') }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">{{ translations.meal_planning.no_meals|default('Aucun repas planifié') }}</h4>
+        <p class="text-muted">{{ translations.meal_planning.no_meals_message|default('Ce planning ne contient pas encore de repas.') }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Shopping List Preview -->
+    {% if shoppingList %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="shopping-list">
+                <h3 class="mb-4">
+                    <i class="fas fa-shopping-cart me-2"></i>{{ translations.meal_planning.shopping_list|default('Liste de courses') }}
+                </h3>
+                
+                {% for category, items in shoppingList %}
+                <div class="category-section">
+                    <h5 class="category-title">
+                        <i class="fas fa-tags me-2"></i>{{ category|title }}
+                    </h5>
+                    <div class="row">
+                        {% for item in items %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                <span class="fw-medium">{{ item.name }}</span>
+                                <span class="badge bg-primary">{{ item.quantity }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="text-center mt-4">
+                    <a href="/meal-planning/{{ plan.id }}/shopping-list" class="btn btn-primary">
+                        <i class="fas fa-print me-2"></i>{{ translations.meal_planning.print_shopping_list|default('Imprimer la liste') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Add smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add print functionality
+function printPlan() {
+    window.print();
+}
+
+// Add to calendar functionality
+function addToCalendar() {
+    // Implementation for adding to calendar
+    alert('{{ translations.meal_planning.added_to_calendar|default("Planning ajouté au calendrier") }}');
+}
+</script>
+{% endblock %}

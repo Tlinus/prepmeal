@@ -113,6 +113,24 @@ class TranslationService
         ];
     }
 
+    public function getTranslations(string $locale = 'fr', array $sections = []): array
+    {
+        $translations = $this->translations[$locale] ?? $this->translations[$this->defaultLocale] ?? [];
+        
+        if (empty($sections)) {
+            return $translations;
+        }
+        
+        $result = [];
+        foreach ($sections as $section) {
+            if (isset($translations[$section])) {
+                $result[$section] = $translations[$section];
+            }
+        }
+        
+        return $result;
+    }
+
     public function getUnits(string $locale = 'fr'): array
     {
         return [

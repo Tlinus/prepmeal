@@ -27,7 +27,17 @@
     "all": "Tous",
     "none": "Aucun",
     "required": "Requis",
-    "optional": "Optionnel"
+    "optional": "Optionnel",
+    "prep_time": "Temps de préparation",
+    "cook_time": "Temps de cuisson",
+    "servings": "Portions",
+    "ingredients": "Ingrédients",
+    "nutrition": "Valeurs nutritionnelles",
+    "protein": "Protéines",
+    "carbs": "Glucides",
+    "fat": "Lipides",
+    "fiber": "Fibres",
+    "seasonal": "De saison"
   },
   "navigation": {
     "home": "Accueil",
@@ -40,6 +50,25 @@
     "logout": "Déconnexion",
     "login": "Connexion",
     "register": "Inscription"
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "preferences": "Mes Préférences",
+    "personal_info": "Informations personnelles",
+    "dietary_preferences": "Préférences alimentaires",
+    "allergens": "Allergènes",
+    "diet_type": "Type de régime",
+    "servings": "Nombre de portions",
+    "period": "Période de planification",
+    "save_changes": "Sauvegarder les modifications",
+    "changes_saved": "Modifications sauvegardées avec succès",
+    "error_saving": "Erreur lors de la sauvegarde"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "email": "Veuillez entrer une adresse email valide",
+    "min_length": "Ce champ doit contenir au moins :min caractères",
+    "max_length": "Ce champ ne peut pas dépasser :max caractères"
   },
   "home": {
     "title": "PrepMeal - Planification de repas intelligente",
@@ -60,6 +89,8 @@
     "generate_plan": "Générer un planning",
     "my_plans": "Mes plannings",
     "preferences": "Préférences",
+    "plan_info": "Informations du planning",
+    "shopping_list": "Liste de courses",
     "period": {
       "label": "Période",
       "week": "1 semaine",
@@ -98,6 +129,29 @@
     },
     "servings": {
       "label": "Nombre de portions",
+      "persons": "personnes"
+    },
+    "ingredients": {
+      "title": "Sélection d'ingrédients de saison",
+      "subtitle": "Choisissez vos ingrédients préférés pour personnaliser votre planning",
+      "current_season": "Saison actuelle",
+      "seasonal_selection": "Sélection des ingrédients de saison",
+      "select_all": "Tout sélectionner",
+      "deselect_all": "Tout désélectionner",
+      "save_preferences": "Sauvegarder les préférences",
+      "generate_plan": "Générer le planning",
+      "seasonal": "De saison",
+      "preferences_saved": "Préférences sauvegardées avec succès",
+      "preferences_error": "Erreur lors de la sauvegarde des préférences",
+      "plan_generation_error": "Erreur lors de la génération du planning"
+    },
+    "seasons": {
+      "printemps": "Printemps",
+      "ete": "Été",
+      "automne": "Automne",
+      "hiver": "Hiver"
+    },
+    "servings_options": {
       "1": "1 personne",
       "2": "2 personnes",
       "3": "3 personnes",
@@ -124,26 +178,85 @@
     "plan_error": "Erreur lors de la génération du planning"
   },
   "recipes": {
-    "title": "Recettes",
-    "search_placeholder": "Rechercher une recette...",
+    "title": "Découvrez de Délicieuses Recettes",
+    "subtitle": "Explorez notre collection de recettes saisonnières, saines et personnalisées",
+    "search": "Rechercher des recettes",
+    "search_placeholder": "Rechercher par nom, ingrédients ou cuisine...",
     "filter_by": "Filtrer par",
     "sort_by": "Trier par",
-    "no_recipes": "Aucune recette trouvée",
-    "view_recipe": "Voir la recette",
-    "add_to_favorites": "Ajouter aux favoris",
-    "remove_from_favorites": "Retirer des favoris",
-    "ingredients": "Ingrédients",
-    "instructions": "Instructions",
-    "nutrition": "Valeurs nutritionnelles",
+    "category": "Catégorie",
+    "difficulty": "Difficulté",
+    "diet_type": "Type de régime",
+    "allergens": "Allergènes",
     "prep_time": "Temps de préparation",
     "cook_time": "Temps de cuisson",
     "total_time": "Temps total",
-    "servings": "Portions",
-    "difficulty": "Difficulté",
+    "season": "Saison",
+    "all_categories": "Toutes les catégories",
+    "all_difficulties": "Toutes les difficultés",
+    "all_diet_types": "Tous les types de régime",
+    "apply_filters": "Appliquer les filtres",
+    "clear_filters": "Effacer tous les filtres",
+    "no_recipes": "Aucune recette trouvée",
+    "no_image": "Aucune image disponible",
+    "minutes": "min",
+    "servings": "portions",
+    "view_recipe": "Voir la recette",
+    "no_recipes_found": "Aucune recette trouvée",
+    "try_different_filters": "Essayez d'ajuster vos filtres ou termes de recherche",
+    "ingredients": "Ingrédients",
+    "instructions": "Instructions",
+    "nutrition": "Valeurs nutritionnelles",
     "seasonal": "De saison",
-    "allergens": "Allergènes",
     "dietary_restrictions": "Régimes alimentaires",
-    "tags": "Tags"
+    "tags": "Tags",
+    "filters": {
+      "title": "Affiner votre recherche",
+      "category": "Catégorie",
+      "difficulty": "Difficulté",
+      "diet_type": "Type de régime",
+      "allergens": "Allergènes",
+      "prep_time": "Temps de préparation",
+      "season": "Saison"
+    },
+    "categories": {
+      "petit_dejeuner": "Petit-déjeuner",
+      "entree": "Entrée",
+      "plat_principal": "Plat principal",
+      "dessert": "Dessert",
+      "boisson": "Boisson",
+      "equilibre": "Équilibré",
+      "leger": "Repas léger",
+      "vegetarien": "Végétarien",
+      "vegan": "Vegan",
+      "sans_gluten": "Sans gluten"
+    },
+    "difficulties": {
+      "facile": "Facile",
+      "moyen": "Moyen",
+      "difficile": "Difficile"
+    },
+    "quick_actions": {
+      "title": "Actions rapides",
+      "add_to_meal_plan": "Ajouter au planning",
+      "share_recipe": "Partager la recette",
+      "print_recipe": "Imprimer la recette"
+    },
+    "sort_options": {
+      "title": "Trier par",
+      "name_asc": "Nom (A-Z)",
+      "name_desc": "Nom (Z-A)",
+      "difficulty_asc": "Difficulté (Facile à Difficile)",
+      "difficulty_desc": "Difficulté (Difficile à Facile)",
+      "time_asc": "Temps (Rapide à Long)",
+      "time_desc": "Temps (Long à Rapide)",
+      "rating_desc": "Note (Élevée à Faible)"
+    },
+    "stats": {
+      "total_recipes": "Total des recettes",
+      "filtered_recipes": "Recettes filtrées",
+      "favorites": "Favoris"
+    }
   },
   "diet_types": {
     "prise_masse": "Prise de masse",
@@ -179,122 +292,115 @@
     "automne": "Automne",
     "hiver": "Hiver"
   },
-  "units": {
-    "metric": {
-      "g": "g",
-      "kg": "kg",
-      "ml": "ml",
-      "l": "l",
-      "pieces": "pièces",
-      "cups": "tasses"
-    },
-    "imperial": {
-      "oz": "oz",
-      "lb": "lb",
-      "fl_oz": "fl oz",
-      "cups": "cups",
-      "pieces": "pieces",
-      "tbsp": "tbsp",
-      "tsp": "tsp"
-    }
-  },
-  "meal_types": {
-    "breakfast": "Petit-déjeuner",
-    "lunch": "Déjeuner",
-    "dinner": "Dîner",
-    "snack": "Collation"
-  },
-  "difficulties": {
-    "facile": "Facile",
-    "moyen": "Moyen",
-    "difficile": "Difficile"
-  },
-  "categories": {
-    "petit_dejeuner": "Petit-déjeuner",
-    "entree": "Entrée",
-    "plat_principal": "Plat principal",
-    "dessert": "Dessert",
-    "equilibre": "Équilibré",
-    "leger": "Léger",
-    "vegetarien": "Végétarien",
-    "vegan": "Vegan"
-  },
-  "time": {
-    "minutes": ":count minute",
-    "minutes_plural": ":count minutes",
-    "hours": ":count heure",
-    "hours_plural": ":count heures",
-    "hours_minutes": ":hours h :minutes min"
-  },
   "subscription": {
     "title": "Abonnement",
-    "plans": {
+    "plans": "Plans d'abonnement",
+    "current_plan": "Plan actuel",
+    "billing": "Facturation",
+    "payment_history": "Historique des paiements",
+    "manage_subscription": "Gérer l'abonnement",
+    "cancel_subscription": "Annuler l'abonnement",
+    "reactivate_subscription": "Réactiver l'abonnement",
+    "subscription_canceled": "Abonnement annulé",
+    "subscription_reactivated": "Abonnement réactivé",
+    "payment_failed": "Paiement échoué",
+    "payment_succeeded": "Paiement réussi",
+    "plan_features": {
       "free": {
-        "name": "Gratuit",
+        "title": "Gratuit",
+        "description": "Plan de base avec fonctionnalités limitées",
         "price": "0€",
-        "period": "pour toujours",
-        "features": [
-          "7 jours de planning",
-          "Recettes de base",
-          "Accès limité"
-        ]
+        "period": "pour toujours"
       },
       "monthly": {
-        "name": "Mensuel",
-        "price": "9,99€",
-        "period": "par mois",
-        "features": [
-          "Planning illimité",
-          "Toutes les recettes",
-          "Export PDF",
-          "Support prioritaire"
-        ]
+        "title": "Mensuel",
+        "description": "Plan premium avec toutes les fonctionnalités",
+        "price": "9.99€",
+        "period": "par mois"
       },
       "yearly": {
-        "name": "Annuel",
-        "price": "99,99€",
-        "period": "par an",
-        "features": [
-          "Planning illimité",
-          "Toutes les recettes",
-          "Export PDF",
-          "Support prioritaire",
-          "2 mois gratuits"
-        ]
+        "title": "Annuel",
+        "description": "Plan premium annuel avec économies",
+        "price": "99.99€",
+        "period": "par an"
       }
     },
-    "subscribe": "S'abonner",
-    "manage": "Gérer l'abonnement",
-    "cancel": "Annuler l'abonnement",
-    "history": "Historique des paiements"
+    "features": {
+      "meal_plans": "Plannings de repas",
+      "planning_days": "Jours de planning",
+      "recipes": "Recettes",
+      "export_pdf": "Export PDF",
+      "priority_support": "Support prioritaire"
+    },
+    "limits": {
+      "unlimited": "Illimité",
+      "basic": "De base",
+      "all": "Toutes"
+    }
   },
-  "profile": {
-    "title": "Profil",
-    "personal_info": "Informations personnelles",
-    "preferences": "Préférences",
-    "allergens": "Allergènes",
-    "dietary_restrictions": "Régimes alimentaires",
-    "units": "Système d'unités",
-    "language": "Langue",
-    "save_changes": "Enregistrer les modifications",
-    "changes_saved": "Modifications enregistrées"
+  "export": {
+    "title": "Export",
+    "export_meal_plan": "Exporter le planning",
+    "export_shopping_list": "Exporter la liste de courses",
+    "export_nutritional_report": "Exporter le rapport nutritionnel",
+    "preview": "Prévisualiser",
+    "download_pdf": "Télécharger PDF",
+    "export_multiple_plans": "Exporter plusieurs plannings",
+    "select_plans": "Sélectionner les plannings",
+    "export_error": "Erreur lors de l'export",
+    "export_success": "Export réussi",
+    "premium_feature": "Fonctionnalité réservée aux abonnés premium"
+  },
+  "units": {
+    "metric": {
+      "weight": {
+        "g": "grammes",
+        "kg": "kilogrammes"
+      },
+      "volume": {
+        "ml": "millilitres",
+        "l": "litres"
+      },
+      "temperature": {
+        "celsius": "degrés Celsius"
+      },
+      "pieces": "pièces"
+    },
+    "imperial": {
+      "weight": {
+        "oz": "onces",
+        "lb": "livres"
+      },
+      "volume": {
+        "fl_oz": "onces fluides",
+        "cup": "tasses"
+      },
+      "temperature": {
+        "fahrenheit": "degrés Fahrenheit"
+      },
+      "pieces": "pièces"
+    },
+    "conversion": {
+      "metric_to_imperial": "Convertir vers impérial",
+      "imperial_to_metric": "Convertir vers métrique"
+    }
   },
   "errors": {
-    "404": "Page non trouvée",
-    "500": "Erreur serveur",
-    "unauthorized": "Accès non autorisé",
-    "forbidden": "Accès interdit",
-    "validation": "Erreur de validation",
-    "network": "Erreur réseau",
-    "unknown": "Erreur inconnue"
+    "planning_not_found": "Planning non trouvé",
+    "subscription_required": "Abonnement requis",
+    "feature_not_available": "Fonctionnalité non disponible",
+    "invalid_data": "Données invalides",
+    "server_error": "Erreur serveur",
+    "network_error": "Erreur réseau"
   },
-  "validation": {
-    "required": "Ce champ est requis",
-    "email": "Format d'email invalide",
-    "min_length": "Minimum :min caractères",
-    "max_length": "Maximum :max caractères",
-    "numeric": "Valeur numérique requise",
-    "integer": "Nombre entier requis",
-    "positive": "Valeur positive requise"
+  "success": {
+    "plan_generated": "Planning généré avec succès",
+    "plan_saved": "Planning sauvegardé",
+    "plan_updated": "Planning mis à jour",
+    "plan_deleted": "Planning supprimé",
+    "preferences_saved": "Préférences sauvegardées",
+    "subscription_created": "Abonnement créé",
+    "subscription_canceled": "Abonnement annulé",
+    "export_completed": "Export terminé"
   }
 }

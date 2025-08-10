@@ -1,0 +1,79 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ page_title }}</h1>
+        
+        {% if flash_message %}
+            <div class="mb-6 p-4 rounded-md {% if flash_message.type == 'error' %}bg-red-100 text-red-700 border border-red-300{% else %}bg-green-100 text-green-700 border border-green-300{% endif %}">
+                {{ flash_message.message }}
+            </div>
+        {% endif %}
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <form method="POST" action="/profile/preferences" class="space-y-6">
+                <div>
+                    <label for="diet_type" class="block text-sm font-medium text-gray-700">Type de régime</label>
+                    <select id="diet_type" name="diet_type" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="equilibre" {% if (user.diet_type ?? 'equilibre') == 'equilibre' %}selected{% endif %}>Équilibré</option>
+                        <option value="prise_masse" {% if (user.diet_type ?? 'equilibre') == 'prise_masse' %}selected{% endif %}>Prise de masse</option>
+                        <option value="seche" {% if (user.diet_type ?? 'equilibre') == 'seche' %}selected{% endif %}>Sèche</option>
+                        <option value="vegan" {% if (user.diet_type ?? 'equilibre') == 'vegan' %}selected{% endif %}>Vegan</option>
+                        <option value="vegetarien" {% if (user.diet_type ?? 'equilibre') == 'vegetarien' %}selected{% endif %}>Végétarien</option>
+                        <option value="sans_gluten" {% if (user.diet_type ?? 'equilibre') == 'sans_gluten' %}selected{% endif %}>Sans gluten</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="servings" class="block text-sm font-medium text-gray-700">Nombre de portions</label>
+                    <select id="servings" name="servings" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="1" {% if (user.servings ?? 2) == 1 %}selected{% endif %}>1 personne</option>
+                        <option value="2" {% if (user.servings ?? 2) == 2 %}selected{% endif %}>2 personnes</option>
+                        <option value="3" {% if (user.servings ?? 2) == 3 %}selected{% endif %}>3 personnes</option>
+                        <option value="4" {% if (user.servings ?? 2) == 4 %}selected{% endif %}>4 personnes</option>
+                        <option value="6" {% if (user.servings ?? 2) == 6 %}selected{% endif %}>6 personnes</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="period" class="block text-sm font-medium text-gray-700">Période de planification</label>
+                    <select id="period" name="period" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="week" {% if (user.period ?? 'week') == 'week' %}selected{% endif %}>1 semaine</option>
+                        <option value="month" {% if (user.period ?? 'week') == 'month' %}selected{% endif %}>1 mois</option>
+                        <option value="year" {% if (user.period ?? 'week') == 'year' %}selected{% endif %}>1 année</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Allergènes à éviter</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        {% for allergen in allergens %}
+                            <label class="flex items-center">
+                                <input type="checkbox" name="excluded_allergens[]" value="{{ allergen.key }}"
+                                       {% if allergen.key in (user.excluded_allergens ?? []) %}checked{% endif %}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">{{ allergen.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="flex justify-between">
+                    <a href="/profile" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Retour au profil
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Sauvegarder les préférences
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

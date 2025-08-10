@@ -1,0 +1,234 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Tableau de bord - PrepMeal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+            </h1>
+            <p class="text-muted">Bienvenue, {{ user.name }} ! Voici un aperçu de votre activité.</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Plannings créés</h6>
+                            <h2 class="mb-0">{{ stats.total_plans }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Recettes cuisinées</h6>
+                            <h2 class="mb-0">{{ stats.total_recipes_cooked }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-utensils fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Favoris</h6>
+                            <h2 class="mb-0">{{ stats.favorite_recipes_count }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-heart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Jours actifs</h6>
+                            <h2 class="mb-0">0</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="/meal-planning" class="btn btn-primary w-100">
+                                <i class="fas fa-magic me-2"></i>Générer un planning
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/recipes" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-book-open me-2"></i>Parcourir les recettes
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/favorites" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-heart me-2"></i>Mes favoris
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/profile" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-user-edit me-2"></i>Modifier le profil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Plans -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Plannings récents
+                    </h5>
+                    <a href="/my-plans" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_plans %}
+                        <div class="list-group list-group-flush">
+                            {% for plan in recent_plans %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ plan.title }}</h6>
+                                    <small class="text-muted">{{ plan.start_date }} - {{ plan.end_date }}</small>
+                                </div>
+                                <div>
+                                    <a href="/plan/{{ plan.id }}" class="btn btn-sm btn-outline-primary">Voir</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucun planning créé pour le moment</p>
+                            <a href="/meal-planning" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Créer votre premier planning
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Favorite Recipes -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heart me-2"></i>Recettes favorites
+                    </h5>
+                    <a href="/favorites" class="btn btn-sm btn-outline-warning">Voir tout</a>
+                </div>
+                <div class="card-body">
+                    {% if favorite_recipes %}
+                        <div class="list-group list-group-flush">
+                            {% for recipe in favorite_recipes|slice(0, 5) %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ recipe.title }}</h6>
+                                    <small class="text-muted">{{ recipe.difficulty }}</small>
+                                </div>
+                                <div>
+                                    <a href="/recipes/{{ recipe.id }}" class="btn btn-sm btn-outline-warning">Voir</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-heart fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucune recette favorite</p>
+                            <a href="/recipes" class="btn btn-warning">
+                                <i class="fas fa-book-open me-2"></i>Découvrir des recettes
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seasonal Suggestions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-leaf me-2"></i>Suggestions de saison
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for suggestion in seasonal_suggestions|default([]) %}
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ suggestion.title }}</h6>
+                                    <p class="card-text text-muted">{{ suggestion.description|slice(0, 80) }}...</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-success">{{ suggestion.season }}</span>
+                                        <a href="/recipes/{{ suggestion.id }}" class="btn btn-sm btn-outline-primary">Voir</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12 text-center py-4">
+                            <i class="fas fa-leaf fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucune suggestion de saison disponible</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

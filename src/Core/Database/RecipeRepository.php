@@ -171,20 +171,20 @@ class RecipeRepository
     {
         return new Recipe(
             $row['id'],
-            json_decode($row['title'], true),
-            json_decode($row['description'], true),
+            json_decode($row['title'] ?? '{}', true) ?: [],
+            json_decode($row['description'] ?? '{}', true) ?: [],
             $row['category'],
-            json_decode($row['season'], true),
+            json_decode($row['season'] ?? '[]', true) ?: [],
             (int) $row['prep_time'],
             (int) $row['cook_time'],
             (int) $row['servings'],
             $row['difficulty'],
-            json_decode($row['nutrition'], true),
-            json_decode($row['allergens'], true),
-            json_decode($row['dietary_restrictions'], true),
+            json_decode($row['nutrition'] ?? '{}', true) ?: [],
+            json_decode($row['allergens'] ?? '[]', true) ?: [],
+            json_decode($row['dietary_restrictions'] ?? '[]', true) ?: [],
             $this->getIngredientsForRecipe($row['id']),
-            json_decode($row['instructions'], true),
-            json_decode($row['tags'], true),
+            json_decode($row['instructions'] ?? '[]', true) ?: [],
+            json_decode($row['tags'] ?? '[]', true) ?: [],
             $row['image_url'] ?? null
         );
     }
@@ -198,10 +198,10 @@ class RecipeRepository
         $ingredients = [];
         while ($row = $stmt->fetch()) {
             $ingredients[] = new Ingredient(
-                json_decode($row['name'], true),
-                json_decode($row['quantity'], true),
+                json_decode($row['name'] ?? '{}', true) ?: [],
+                json_decode($row['quantity'] ?? '{}', true) ?: [],
                 (bool) $row['seasonal'],
-                json_decode($row['season'], true) ?? []
+                json_decode($row['season'] ?? '[]', true) ?: []
             );
         }
 

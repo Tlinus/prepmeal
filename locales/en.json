@@ -41,6 +41,25 @@
     "login": "Login",
     "register": "Register"
   },
+  "profile": {
+    "title": "My Profile",
+    "preferences": "My Preferences",
+    "personal_info": "Personal Information",
+    "dietary_preferences": "Dietary Preferences",
+    "allergens": "Allergens",
+    "diet_type": "Diet Type",
+    "servings": "Number of Servings",
+    "period": "Planning Period",
+    "save_changes": "Save Changes",
+    "changes_saved": "Changes saved successfully",
+    "error_saving": "Error saving changes"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "min_length": "This field must contain at least :min characters",
+    "max_length": "This field cannot exceed :max characters"
+  },
   "home": {
     "title": "PrepMeal - Smart Meal Planning",
     "subtitle": "Generate personalized menus with seasonal recipes",
@@ -98,6 +117,28 @@
     },
     "servings": {
       "label": "Number of servings",
+      "persons": "persons"
+    },
+    "ingredients": {
+      "title": "Seasonal Ingredients Selection",
+      "subtitle": "Choose your favorite ingredients to personalize your meal plan",
+      "current_season": "Current season",
+      "seasonal_selection": "Seasonal ingredients selection",
+      "select_all": "Select all",
+      "deselect_all": "Deselect all",
+      "save_preferences": "Save preferences",
+      "generate_plan": "Generate plan",
+      "seasonal": "Seasonal",
+      "preferences_saved": "Preferences saved successfully",
+      "preferences_error": "Error saving preferences",
+      "plan_generation_error": "Error generating meal plan"
+    },
+    "seasons": {
+      "printemps": "Spring",
+      "ete": "Summer",
+      "automne": "Autumn",
+      "hiver": "Winter"
+    }
       "1": "1 person",
       "2": "2 people",
       "3": "3 people",
@@ -125,10 +166,29 @@
     "plan_error": "Error generating plan"
   },
   "recipes": {
-    "title": "Recipes",
-    "search_placeholder": "Search recipes...",
+    "title": "Discover Delicious Recipes",
+    "subtitle": "Explore our collection of seasonal, healthy, and personalized recipes",
+    "search": "Search recipes",
+    "search_placeholder": "Search by name, ingredients, or cuisine...",
+    "category": "Category",
+    "difficulty": "Difficulty",
+    "diet_type": "Diet type",
+    "allergens": "Allergens",
+    "prep_time": "Preparation time",
+    "season": "Season",
+    "all_categories": "All categories",
+    "all_difficulties": "All difficulties",
+    "all_diet_types": "All diet types",
+    "apply_filters": "Apply filters",
+    "clear_filters": "Clear all filters",
+    "no_image": "No image available",
+    "minutes": "min",
+    "servings": "servings",
+    "view_recipe": "View recipe",
+    "no_recipes_found": "No recipes found",
+    "try_different_filters": "Try adjusting your filters or search terms",
     "filters": {
-      "title": "Filters",
+      "title": "Refine your search",
       "category": "Category",
       "difficulty": "Difficulty",
       "diet_type": "Diet type",
@@ -144,7 +204,9 @@
       "equilibre": "Balanced",
       "vegetarien": "Vegetarian",
       "vegan": "Vegan",
-      "sans_gluten": "Gluten-free"
+      "sans_gluten": "Gluten-free",
+      "petit_dejeuner": "Breakfast",
+      "leger": "Light meal"
     },
     "difficulties": {
       "facile": "Easy",
@@ -175,6 +237,27 @@
     },
     "related": {
       "title": "Related recipes"
+    },
+    "quick_actions": {
+      "title": "Quick actions",
+      "add_to_meal_plan": "Add to meal plan",
+      "share_recipe": "Share recipe",
+      "print_recipe": "Print recipe"
+    },
+    "sort_options": {
+      "title": "Sort by",
+      "name_asc": "Name (A-Z)",
+      "name_desc": "Name (Z-A)",
+      "difficulty_asc": "Difficulty (Easy to Hard)",
+      "difficulty_desc": "Difficulty (Hard to Easy)",
+      "time_asc": "Time (Quick to Long)",
+      "time_desc": "Time (Long to Quick)",
+      "rating_desc": "Rating (High to Low)"
+    },
+    "stats": {
+      "total_recipes": "Total recipes",
+      "filtered_recipes": "Filtered recipes",
+      "favorites": "Favorites"
     }
   },
   "subscription": {

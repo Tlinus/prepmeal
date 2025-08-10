@@ -1,0 +1,158 @@
+{
+  "id": "recipe_001",
+  "title": {
+    "fr": "Salade de quinoa aux légumes de saison",
+    "en": "Seasonal vegetable quinoa salad",
+    "es": "Ensalada de quinoa con verduras de temporada", 
+    "de": "Quinoa-Salat mit Saisongemüse"
+  },
+  "description": {
+    "fr": "Une salade nutritive et colorée parfaite pour l'été",
+    "en": "A nutritious and colorful salad perfect for summer",
+    "es": "Una ensalada nutritiva y colorida perfecta para el verano",
+    "de": "Ein nahrhafter und farbenfroher Salat, perfekt für den Sommer"
+  },
+  "category": "equilibre",
+  "season": ["printemps", "ete"],
+  "prep_time": 15,
+  "cook_time": 20,
+  "servings": 4,
+  "difficulty": "facile",
+  "nutrition": {
+    "calories": 320,
+    "protein": 12,
+    "carbs": 45,
+    "fat": 8,
+    "fiber": 6
+  },
+  "allergens": ["gluten"],
+  "dietary_restrictions": ["vegetarien", "vegan"],
+  "ingredients": [
+    {
+      "name": {
+        "fr": "quinoa",
+        "en": "quinoa", 
+        "es": "quinoa",
+        "de": "Quinoa"
+      },
+      "quantity": {
+        "metric": {"amount": 200, "unit": "g"},
+        "imperial": {"amount": 7, "unit": "oz"}
+      },
+      "seasonal": false
+    },
+    {
+      "name": {
+        "fr": "courgettes",
+        "en": "zucchini",
+        "es": "calabacín", 
+        "de": "Zucchini"
+      },
+      "quantity": {
+        "metric": {"amount": 2, "unit": "pièces"},
+        "imperial": {"amount": 2, "unit": "pieces"}
+      },
+      "seasonal": true,
+      "season": ["ete", "automne"]
+    },
+    {
+      "name": {
+        "fr": "tomates cerises",
+        "en": "cherry tomatoes",
+        "es": "tomates cherry",
+        "de": "Kirschtomaten"
+      },
+      "quantity": {
+        "metric": {"amount": 200, "unit": "g"},
+        "imperial": {"amount": 7, "unit": "oz"}
+      },
+      "seasonal": true,
+      "season": ["ete"]
+    },
+    {
+      "name": {
+        "fr": "huile d'olive",
+        "en": "olive oil",
+        "es": "aceite de oliva",
+        "de": "Olivenöl"
+      },
+      "quantity": {
+        "metric": {"amount": 30, "unit": "ml"},
+        "imperial": {"amount": 2, "unit": "tbsp"}
+      },
+      "seasonal": false
+    },
+    {
+      "name": {
+        "fr": "jus de citron",
+        "en": "lemon juice",
+        "es": "jugo de limón",
+        "de": "Zitronensaft"
+      },
+      "quantity": {
+        "metric": {"amount": 15, "unit": "ml"},
+        "imperial": {"amount": 1, "unit": "tbsp"}
+      },
+      "seasonal": false
+    }
+  ],
+  "instructions": [
+    {
+      "step": 1,
+      "text": {
+        "fr": "Rincer le quinoa et le faire cuire dans 400ml d'eau salée pendant 15 minutes",
+        "en": "Rinse quinoa and cook in 400ml salted water for 15 minutes",
+        "es": "Enjuagar la quinoa y cocinar en 400ml de agua con sal durante 15 minutos",
+        "de": "Quinoa spülen und in 400ml Salzwasser 15 Minuten kochen"
+      }
+    },
+    {
+      "step": 2,
+      "text": {
+        "fr": "Laisser refroidir le quinoa et le mettre dans un saladier",
+        "en": "Let quinoa cool and place in a salad bowl",
+        "es": "Dejar enfriar la quinoa y colocarla en un bol para ensalada",
+        "de": "Quinoa abkühlen lassen und in eine Salatschüssel geben"
+      }
+    },
+    {
+      "step": 3,
+      "text": {
+        "fr": "Couper les courgettes en dés et les tomates en deux",
+        "en": "Dice the zucchini and halve the tomatoes",
+        "es": "Cortar el calabacín en dados y las tomates por la mitad",
+        "de": "Zucchini würfeln und Tomaten halbieren"
+      }
+    },
+    {
+      "step": 4,
+      "text": {
+        "fr": "Ajouter les légumes au quinoa et mélanger délicatement",
+        "en": "Add vegetables to quinoa and gently mix",
+        "es": "Agregar las verduras a la quinoa y mezclar suavemente",
+        "de": "Gemüse zur Quinoa hinzufügen und vorsichtig mischen"
+      }
+    },
+    {
+      "step": 5,
+      "text": {
+        "fr": "Préparer la vinaigrette en mélangeant l'huile d'olive et le jus de citron",
+        "en": "Prepare vinaigrette by mixing olive oil and lemon juice",
+        "es": "Preparar la vinagreta mezclando aceite de oliva y jugo de limón",
+        "de": "Vinaigrette zubereiten, indem Olivenöl und Zitronensaft gemischt werden"
+      }
+    },
+    {
+      "step": 6,
+      "text": {
+        "fr": "Verser la vinaigrette sur la salade et servir frais",
+        "en": "Pour vinaigrette over salad and serve cold",
+        "es": "Verter la vinagreta sobre la ensalada y servir frío",
+        "de": "Vinaigrette über den Salat gießen und kalt servieren"
+      }
+    }
+  ],
+  "tags": ["leger", "rapide", "sain", "vegetarien", "vegan"],
+  "image_url": "/images/recipes/recipe_001.jpg"
+}
+

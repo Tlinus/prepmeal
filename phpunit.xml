@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
          processIsolation="false"
          stopOnFailure="false"
          cacheDirectory=".phpunit.cache">
+    
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
@@ -18,25 +19,34 @@
         </testsuite>
     </testsuites>
     
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
+    
     <coverage>
         <include>
             <directory suffix=".php">src</directory>
         </include>
         <exclude>
-            <directory suffix=".php">src/Controllers</directory>
-            <directory suffix=".php">src/Middleware</directory>
+            <directory>src/Core/Database</directory>
+            <directory>src/Controllers</directory>
+            <file>public/index.php</file>
         </exclude>
         <report>
-            <html outputDirectory="tests/coverage"/>
-            <text outputFile="tests/coverage.txt"/>
+            <html outputDirectory="tests/coverage/html"/>
+            <text outputFile="tests/coverage/coverage.txt"/>
         </report>
     </coverage>
     
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="DB_DATABASE" value="prepmeal_test"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="QUEUE_DRIVER" value="sync"/>
+        <env name="DB_HOST" value="localhost"/>
+        <env name="DB_NAME" value="prepmeal_test"/>
+        <env name="DB_USER" value="root"/>
+        <env name="DB_PASS" value=""/>
+        <env name="STRIPE_SECRET_KEY" value="sk_test_..."/>
+        <env name="STRIPE_WEBHOOK_SECRET" value="whsec_..."/>
     </php>
 </phpunit>

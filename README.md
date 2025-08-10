@@ -1,94 +1,125 @@
-# PrepMeal - Planification de Repas Intelligente
+# PrepMeal - Application de Planification de Repas
 
-Une application web complète de planification de repas permettant de générer des menus personnalisés pour une semaine, un mois ou une année entière, avec prise en compte des fruits et légumes de saison.
+PrepMeal est une application web moderne pour la planification de repas personnalisés avec des recettes de saison, des listes de courses automatiques et des fonctionnalités nutritionnelles avancées.
 
 ## 🚀 Fonctionnalités
 
-### ✨ Fonctionnalités principales
-- **Planification intelligente** : Génération de menus personnalisés selon vos préférences
-- **Ingrédients de saison** : Prise en compte automatique des fruits et légumes de saison
-- **Gestion des allergènes** : Filtrage par allergènes (gluten, lactose, fruits à coque, etc.)
-- **Régimes alimentaires** : Support de multiples régimes (vegan, végétarien, cétogène, etc.)
-- **Internationalisation** : Support multilingue (FR, EN, ES, DE)
-- **Système d'unités** : Conversion automatique métrique/impérial
-- **Abonnement Stripe** : Plans gratuits et premium
-- **Export/Import** : PDF, calendrier, liste de courses
-
-### 🍽️ Types de régimes supportés
-- **Prise de masse** : Surplus calorique, riche en protéines
-- **Équilibré** : Répartition nutritionnelle standard
-- **Sèche** : Déficit calorique contrôlé
-- **Anti-cholestérol** : Faible en graisses saturées
-- **Vegan** : 100% végétal
-- **Végétarien** : Sans viande ni poisson
-- **Recettes simples** : Maximum 5 ingrédients, 30min de préparation
-- **Autres** : Cétogène, paléo, sans gluten, méditerranéen
-
-## 🛠️ Technologies utilisées
-
-### Backend
-- **PHP 8.1+** avec Slim Framework
-- **MySQL** pour la base de données
-- **Stripe** pour les paiements
-- **Twig** pour les templates
-- **Composer** pour la gestion des dépendances
-
-### Frontend
-- **HTML5/CSS3** avec Tailwind CSS
-- **JavaScript** vanilla avec modules ES6
-- **Responsive Design** mobile-first
-- **PWA** (Progressive Web App)
+- **Planification de repas intelligente** avec des recettes de saison
+- **Génération automatique de listes de courses**
+- **Recettes multilingues** (Français, Anglais, Espagnol, Allemand)
+- **Filtres par régime alimentaire** (Végétarien, Vegan, Sans gluten, etc.)
+- **Gestion des allergènes**
+- **Export PDF et iCal**
+- **Interface responsive** et moderne
+- **Système de favoris**
+- **Calcul nutritionnel**
 
 ## 📋 Prérequis
 
-- PHP 8.1 ou supérieur
-- MySQL 8.0 ou supérieur
+- PHP 8.0 ou supérieur
+- MySQL 5.7 ou supérieur / MariaDB 10.2 ou supérieur
 - Composer
 - Serveur web (Apache/Nginx)
-- Extension PHP : `pdo_mysql`, `json`, `mbstring`
 
-## 🚀 Installation
+## 🛠️ Installation
 
-### 1. Cloner le projet
+### 1. Cloner le repository
+
 ```bash
 git clone https://github.com/votre-username/prepmeal.git
 cd prepmeal
 ```
 
 ### 2. Installer les dépendances
+
 ```bash
 composer install
 ```
 
-### 3. Configuration de l'environnement
-```bash
-# Copier le fichier d'exemple
-cp env.example .env
+### 3. Configuration de la base de données
 
-# Éditer le fichier .env avec vos paramètres
-nano .env
+#### Option A : Variables d'environnement (Recommandé)
+
+Créez un fichier `.env` à la racine du projet :
+
+```env
+# Configuration de la base de données
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=prepmeal
+DB_USER=root
+DB_PASSWORD=votre_mot_de_passe
+
+# Configuration Stripe (optionnel)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
-### 4. Configuration de la base de données
-```bash
-# Créer la base de données
-mysql -u root -p < database/schema.sql
+#### Option B : Fichier de configuration
 
-# Ou importer le schéma via phpMyAdmin
+1. Copiez le fichier d'exemple :
+```bash
+cp db_config.example.php db_config.php
+cp config/container.example.php config/container.php
 ```
 
-### 5. Configuration du serveur web
+2. Modifiez `db_config.php` avec vos informations de base de données :
+```php
+$db_config = [
+    'host' => 'localhost',
+    'dbname' => 'prepmeal',
+    'username' => 'root',
+    'password' => 'votre_mot_de_passe',
+    'port' => 3306,
+    'charset' => 'utf8mb4'
+];
+```
+
+### 4. Créer la base de données
+
+```sql
+CREATE DATABASE prepmeal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 5. Initialiser la base de données
+
+```bash
+php database/schema.sql
+```
+
+Ou utilisez le script d'initialisation automatique :
+
+```bash
+php -r "
+require_once 'vendor/autoload.php';
+require_once 'db_config.php';
+
+try {
+    \$pdo = createDatabaseConnection(\$db_config);
+    \$sql = file_get_contents('database/schema.sql');
+    \$pdo->exec(\$sql);
+    echo '✅ Base de données initialisée avec succès\n';
+} catch (Exception \$e) {
+    echo '❌ Erreur: ' . \$e->getMessage() . '\n';
+}
+"
+```
+
+### 6. Configurer le serveur web
 
 #### Apache
-Créer un fichier `.htaccess` dans le dossier `public/` :
+
+Créez un fichier `.htaccess` dans le dossier `public/` :
+
 ```apache
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+RewriteRule ^(.*)$ index.php [QSA,L]
 ```
 
 #### Nginx
+
 ```nginx
 server {
     listen 80;
@@ -101,7 +132,7 @@ server {
     }
 
     location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
@@ -109,145 +140,99 @@ server {
 }
 ```
 
-### 6. Permissions des dossiers
-```bash
-# Créer les dossiers nécessaires
-mkdir -p logs cache public/uploads
+### 7. Permissions des dossiers
 
-# Donner les permissions appropriées
-chmod 755 logs cache public/uploads
-chmod 644 .env
+```bash
+chmod -R 755 cache/
+chmod -R 755 logs/
+chmod -R 755 public/uploads/
 ```
 
-### 7. Configuration Stripe (optionnel)
-Pour les fonctionnalités d'abonnement :
-1. Créer un compte Stripe
-2. Récupérer vos clés API dans le dashboard Stripe
-3. Les ajouter dans le fichier `.env`
+## 🔧 Configuration
 
-## 🎯 Utilisation
+### Variables d'environnement
 
-### Démarrage rapide
+| Variable | Description | Défaut |
+|----------|-------------|---------|
+| `DB_HOST` | Hôte de la base de données | `localhost` |
+| `DB_PORT` | Port de la base de données | `3306` |
+| `DB_NAME` | Nom de la base de données | `prepmeal` |
+| `DB_USER` | Utilisateur de la base de données | `root` |
+| `DB_PASSWORD` | Mot de passe de la base de données | `` |
+| `STRIPE_SECRET_KEY` | Clé secrète Stripe | `` |
+| `STRIPE_PUBLISHABLE_KEY` | Clé publique Stripe | `` |
+
+### Configuration Cloudron
+
+Pour le déploiement sur Cloudron, les variables d'environnement suivantes sont automatiquement disponibles :
+
+- `CLOUDRON_MYSQL_HOST`
+- `CLOUDRON_MYSQL_PORT`
+- `CLOUDRON_MYSQL_DATABASE`
+- `CLOUDRON_MYSQL_USERNAME`
+- `CLOUDRON_MYSQL_PASSWORD`
+
+## 🚀 Déploiement
+
+### Développement local
+
 ```bash
-# Démarrer le serveur de développement PHP
 php -S localhost:8000 -t public/
-
-# Ouvrir votre navigateur
-open http://localhost:8000
 ```
 
-### Comptes de test
-- **Email** : `demo@example.com`
-- **Mot de passe** : `password`
+### Production
+
+1. Configurez votre serveur web pour pointer vers le dossier `public/`
+2. Assurez-vous que les variables d'environnement sont configurées
+3. Vérifiez les permissions des dossiers `cache/` et `logs/`
 
 ## 📁 Structure du projet
 
 ```
 prepmeal/
 ├── config/                 # Configuration de l'application
-│   ├── container.php      # Configuration DI
-│   └── routes.php         # Définition des routes
-├── database/              # Scripts de base de données
-│   └── schema.sql        # Schéma de la base de données
-├── locales/              # Fichiers de traduction
-│   ├── fr.json          # Traductions françaises
-│   ├── en.json          # Traductions anglaises
-│   ├── es.json          # Traductions espagnoles
-│   └── de.json          # Traductions allemandes
-├── logs/                 # Fichiers de logs
-├── public/               # Dossier public (DocumentRoot)
-│   ├── index.php        # Point d'entrée
-│   ├── assets/          # CSS, JS, images
-│   └── uploads/         # Fichiers uploadés
-├── src/                  # Code source
-│   ├── Controllers/     # Contrôleurs
-│   ├── Core/           # Services et modèles
-│   │   ├── Database/   # Couche d'accès aux données
-│   │   ├── Models/     # Modèles de données
-│   │   └── Services/   # Services métier
-│   └── Middleware/     # Middleware
-├── templates/           # Templates Twig
-├── tests/              # Tests unitaires
-├── vendor/             # Dépendances Composer
-├── .env                # Variables d'environnement
-├── composer.json       # Dépendances PHP
-└── README.md          # Ce fichier
+├── database/              # Schémas et migrations
+├── public/                # Point d'entrée web
+├── src/                   # Code source
+│   ├── Controllers/       # Contrôleurs
+│   ├── Core/             # Logique métier
+│   │   ├── Database/     # Couche d'accès aux données
+│   │   ├── Models/       # Modèles de données
+│   │   └── Services/     # Services métier
+│   └── Views/            # Vues
+├── templates/             # Templates Twig
+├── vendor/               # Dépendances Composer
+├── .env                  # Variables d'environnement
+├── .gitignore           # Fichiers ignorés par Git
+└── composer.json        # Dépendances PHP
 ```
 
-## 🔧 Configuration
+## 🔒 Sécurité
 
-### Variables d'environnement importantes
+### Fichiers sensibles exclus du repository
 
-```env
-# Base de données
-DB_HOST=localhost
-DB_NAME=prepmeal
-DB_USER=root
-DB_PASS=
+- `.env` - Variables d'environnement
+- `db_config.php` - Configuration de base de données
+- `config/container.php` - Configuration des services
+- `logs/` - Fichiers de logs
+- `cache/` - Fichiers de cache
+- `vendor/` - Dépendances
 
-# Stripe (optionnel)
-STRIPE_PUBLIC_KEY=pk_test_...
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+### Bonnes pratiques
 
-# Application
-APP_ENV=development
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-# Internationalisation
-DEFAULT_LOCALE=fr
-SUPPORTED_LOCALES=fr,en,es,de
-```
-
-## 🧪 Tests
-
-```bash
-# Lancer les tests unitaires
-composer test
-
-# Vérifier le code style
-composer cs
-
-# Analyse statique
-composer stan
-```
-
-## 📊 Fonctionnalités avancées
-
-### API REST
-L'application expose une API REST pour l'intégration avec d'autres applications :
-
-```bash
-# Récupérer toutes les recettes
-GET /api/recipes
-
-# Récupérer une recette spécifique
-GET /api/recipes/{id}
-
-# Générer un planning
-POST /api/generate-plan
-```
-
-### Webhooks Stripe
-Pour gérer les abonnements automatiquement :
-```bash
-# Endpoint webhook
-POST /webhooks/stripe
-```
-
-### Export de données
-- **PDF** : Planning de repas en PDF
-- **iCal** : Export vers calendrier externe
-- **CSV** : Liste de courses
+1. **Ne jamais commiter** les fichiers de configuration avec des informations sensibles
+2. Utilisez les **variables d'environnement** pour les informations sensibles
+3. Configurez correctement les **permissions** des dossiers
+4. Utilisez HTTPS en **production**
+5. Gardez les **dépendances à jour**
 
 ## 🤝 Contribution
 
 1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
+2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
 4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
+5. Ouvrez une Pull Request
 
 ## 📝 Licence
 
@@ -255,27 +240,17 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## 🆘 Support
 
-- **Documentation** : [Wiki du projet](https://github.com/votre-username/prepmeal/wiki)
-- **Issues** : [GitHub Issues](https://github.com/votre-username/prepmeal/issues)
-- **Email** : support@prepmeal.com
+Si vous rencontrez des problèmes :
 
-## 🚀 Roadmap
+1. Vérifiez les logs dans le dossier `logs/`
+2. Consultez la documentation
+3. Ouvrez une issue sur GitHub
 
-### Version 1.1
-- [ ] Application mobile React Native
-- [ ] Intégration avec les applications de fitness
-- [ ] Système de recommandations IA
+## 🔄 Mise à jour
 
-### Version 1.2
-- [ ] Mode hors-ligne
-- [ ] Synchronisation multi-appareils
-- [ ] Partage de plannings entre utilisateurs
+```bash
+git pull origin main
+composer install
+```
 
-### Version 2.0
-- [ ] Assistant vocal
-- [ ] Reconnaissance d'images d'ingrédients
-- [ ] Intégration avec les supermarchés en ligne
-
----
-
-**PrepMeal** - Planifiez vos repas en toute simplicité ! 🍽️✨
+N'oubliez pas de vérifier les changements dans les fichiers de configuration d'exemple.

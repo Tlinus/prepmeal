@@ -6,6 +6,8 @@ namespace PrepMeal\Core\Models;
 
 class Recipe
 {
+    private bool $is_favorite = false;
+
     public function __construct(
         private string $id,
         private array $title,
@@ -145,6 +147,16 @@ class Recipe
         return in_array($allergen, $this->allergens);
     }
 
+    public function isFavorite(): bool
+    {
+        return $this->is_favorite;
+    }
+
+    public function setIsFavorite(bool $isFavorite): void
+    {
+        $this->is_favorite = $isFavorite;
+    }
+
     public function toArray(string $locale = 'fr'): array
     {
         return [
@@ -158,17 +170,33 @@ class Recipe
             'total_time' => $this->getTotalTime(),
             'servings' => $this->servings,
             'difficulty' => $this->difficulty,
-            'nutrition' => $this->nutrition,
+            'nutrition' => is_array($this->nutrition) ? $this->nutrition : [],
             'allergens' => $this->allergens,
             'dietary_restrictions' => $this->dietaryRestrictions,
             'ingredients' => array_map(fn($ingredient) => $ingredient->toArray($locale), $this->ingredients),
-            'instructions' => $this->instructions,
+            'instructions' => array_map(function($step) use ($locale) {
+                if (is_array($step) && isset($step['text'])) {
+                    if (is_array($step['text'])) {
+                        return [
+                            'step' => $step['step'] ?? 1,
+                            'text' => $step['text'][$locale] ?? $step['text']['fr'] ?? $step['text']['en'] ?? ''
+                        ];
+                    } else {
+                        return [
+                            'step' => $step['step'] ?? 1,
+                            'text' => $step['text']
+                        ];
+                    }
+                }
+                return $step;
+            }, $this->instructions),
             'tags' => $this->tags,
             'image_url' => $this->imageUrl,
             'is_seasonal' => $this->isSeasonal(),
             'is_vegan' => $this->isVegan(),
             'is_vegetarian' => $this->isVegetarian(),
             'is_gluten_free' => $this->isGlutenFree(),
+            'is_favorite' => $this->isFavorite(),
         ];
     }
 

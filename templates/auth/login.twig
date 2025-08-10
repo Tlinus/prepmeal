@@ -1,0 +1,70 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Connexion - PrepMeal{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>Connexion
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if errors %}
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                {% for field, error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                                               <form method="POST" action="/login">
+                               <input type="hidden" name="_token" value="{{ csrf_token }}">
+                               <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" 
+                                   class="form-control {% if errors.email %}is-invalid{% endif %}" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{ old_data.email ?? '' }}"
+                                   required>
+                            {% if errors.email %}
+                                <div class="invalid-feedback">{{ errors.email }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password" 
+                                   class="form-control {% if errors.password %}is-invalid{% endif %}" 
+                                   id="password" 
+                                   name="password" 
+                                   required>
+                            {% if errors.password %}
+                                <div class="invalid-feedback">{{ errors.password }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">
+                        Pas encore de compte ? 
+                        <a href="/register" class="text-decoration-none">S'inscrire</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

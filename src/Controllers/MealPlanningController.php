@@ -17,10 +17,12 @@ class MealPlanningController extends BaseController
     private SeasonalIngredientService $seasonalService;
 
     public function __construct(
-        MealPlanningService $mealPlanningService,
+        \PrepMeal\Core\Views\TwigView $view,
         TranslationService $translationService,
+        MealPlanningService $mealPlanningService,
         SeasonalIngredientService $seasonalService
     ) {
+        parent::__construct($view, $translationService);
         $this->mealPlanningService = $mealPlanningService;
         $this->translationService = $translationService;
         $this->seasonalService = $seasonalService;
@@ -28,12 +30,13 @@ class MealPlanningController extends BaseController
 
     public function index(Request $request, Response $response): Response
     {
-        $locale = $this->getLocale($request);
+        $locale = $this->getDefaultLocale();
         $userId = $this->getUserId($request);
         
-        $seasonalIngredients = $this->seasonalService->getCurrentSeasonIngredients($locale);
-        $dietTypes = $this->mealPlanningService->getDietTypes();
-        $allergens = $this->mealPlanningService->getAllergens();
+        $currentSeason = $this->seasonalService->getCurrentSeason();
+        $seasonalIngredients = $this->seasonalService->getSeasonalIngredients($currentSeason);
+        $dietTypes = $this->translationService->getDietTypes($locale);
+        $allergens = $this->translationService->getAllergens($locale);
         $periods = $this->mealPlanningService->getPeriods();
 
         $data = [
@@ -42,7 +45,7 @@ class MealPlanningController extends BaseController
             'allergens' => $allergens,
             'periods' => $periods,
             'locale' => $locale,
-            'translations' => $this->translationService->getTranslations($locale, ['meal_planning', 'common'])
+            'translations' => $this->translationService->getTranslations($locale)
         ];
 
         return $this->render($response, 'meal_planning/index.twig', $data);
@@ -50,14 +53,14 @@ class MealPlanningController extends BaseController
 
     public function generatePlan(Request $request, Response $response): Response
     {
-        $locale = $this->getLocale($request);
-        $userId = $this->getUserId($request);
-        $data = $request->getParsedBody();
-
-        // Validation des données
-        $preferences = $this->validatePreferences($data);
-        
         try {
+            $locale = $this->getDefaultLocale();
+            $userId = $this->getUserId($request);
+            $data = $request->getParsedBody();
+
+            // Validation des données
+            $preferences = $this->validatePreferences($data);
+            
             $mealPlan = $this->mealPlanningService->generatePlan($preferences);
             
             // Sauvegarder le planning en base
@@ -75,17 +78,25 @@ class MealPlanningController extends BaseController
                 'message' => 'Planning généré avec succès'
             ]);
 
+        } catch (\InvalidArgumentException $e) {
+            error_log('MealPlanningController::generatePlan - Validation error: ' . $e->getMessage());
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'message' => 'Erreur de validation: ' . $e->getMessage()
+            ], 400);
         } catch (\Exception $e) {
+            error_log('MealPlanningController::generatePlan - Unexpected error: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
             return $this->jsonResponse($response, [
                 'success' => false,
                 'message' => 'Erreur lors de la génération du planning: ' . $e->getMessage()
-            ], 400);
+            ], 500);
         }
     }
 
     public function myPlans(Request $request, Response $response): Response
     {
-        $locale = $this->getLocale($request);
+        $locale = $this->getDefaultLocale();
         $userId = $this->getUserId($request);
         
         $plans = $this->mealPlanningService->getUserPlans($userId, $locale);
@@ -93,7 +104,7 @@ class MealPlanningController extends BaseController
         $data = [
             'plans' => $plans,
             'locale' => $locale,
-            'translations' => $this->translationService->getTranslations($locale, ['meal_planning', 'common'])
+            'translations' => $this->translationService->getTranslations($locale)
         ];
 
         return $this->render($response, 'meal_planning/my_plans.twig', $data);
@@ -101,7 +112,7 @@ class MealPlanningController extends BaseController
 
     public function showPlan(Request $request, Response $response, array $args): Response
     {
-        $locale = $this->getLocale($request);
+        $locale = $this->getDefaultLocale();
         $userId = $this->getUserId($request);
         $planId = $args['id'];
         
@@ -119,7 +130,7 @@ class MealPlanningController extends BaseController
             'nutritionalBalance' => $nutritionalBalance,
             'shoppingList' => $shoppingList,
             'locale' => $locale,
-            'translations' => $this->translationService->getTranslations($locale, ['meal_planning', 'common'])
+            'translations' => $this->translationService->getTranslations($locale)
         ];
 
         return $this->render($response, 'meal_planning/show_plan.twig', $data);
@@ -171,7 +182,7 @@ class MealPlanningController extends BaseController
 
     public function exportPlan(Request $request, Response $response, array $args): Response
     {
-        $locale = $this->getLocale($request);
+        $locale = $this->getDefaultLocale();
         $userId = $this->getUserId($request);
         $planId = $args['id'];
         $format = $args['format'] ?? 'pdf';
@@ -190,13 +201,13 @@ class MealPlanningController extends BaseController
             case 'csv':
                 return $this->exportPlanAsCsv($response, $plan, $locale);
             default:
-                return $this->redirect($response, '/plan/' . $planId);
+                return $this->redirect($response, '/meal-planning/' . $planId);
         }
     }
 
     public function shoppingList(Request $request, Response $response, array $args): Response
     {
-        $locale = $this->getLocale($request);
+        $locale = $this->getDefaultLocale();
         $userId = $this->getUserId($request);
         $planId = $args['id'];
         
@@ -212,7 +223,7 @@ class MealPlanningController extends BaseController
             'plan' => $plan,
             'shoppingList' => $shoppingList,
             'locale' => $locale,
-            'translations' => $this->translationService->getTranslations($locale, ['meal_planning', 'common'])
+            'translations' => $this->translationService->getTranslations($locale)
         ];
 
         return $this->render($response, 'meal_planning/shopping_list.twig', $data);
@@ -223,11 +234,11 @@ class MealPlanningController extends BaseController
         $preferences = [
             'period' => $data['period'] ?? 'week',
             'diet_type' => $data['diet_type'] ?? 'equilibre',
-            'allergens' => $data['allergens'] ?? [],
+            'excluded_allergens' => $data['excluded_allergens'] ?? [],
             'max_prep_time' => isset($data['max_prep_time']) ? (int) $data['max_prep_time'] : null,
             'servings' => isset($data['servings']) ? (int) $data['servings'] : 2,
             'locale' => $data['locale'] ?? 'fr',
-            'selected_ingredients' => $data['selected_ingredients'] ?? [],
+            'selected_ingredients' => $this->parseJsonField($data['selected_ingredients'] ?? '[]'),
             'excluded_ingredients' => $data['excluded_ingredients'] ?? []
         ];
 
@@ -243,6 +254,25 @@ class MealPlanningController extends BaseController
         }
 
         return $preferences;
+    }
+
+    private function parseJsonField($value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+        
+        if (is_string($value)) {
+            try {
+                $decoded = json_decode($value, true);
+                return is_array($decoded) ? $decoded : [];
+            } catch (\Exception $e) {
+                error_log('Error parsing JSON field: ' . $e->getMessage());
+                return [];
+            }
+        }
+        
+        return [];
     }
 
     private function exportPlanAsPdf(Response $response, $plan, string $locale): Response

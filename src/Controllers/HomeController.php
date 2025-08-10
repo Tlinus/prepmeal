@@ -15,7 +15,7 @@ class HomeController extends BaseController
     private SeasonalIngredientService $seasonalService;
 
     public function __construct(
-        \Slim\Views\Twig $view,
+        \PrepMeal\Core\Views\TwigView $view,
         \PrepMeal\Core\Services\TranslationService $translation,
         RecipeService $recipeService,
         SeasonalIngredientService $seasonalService
@@ -27,7 +27,7 @@ class HomeController extends BaseController
 
     public function index(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $locale = $this->getLocale();
+        $locale = $this->getDefaultLocale();
         
         // Récupérer quelques recettes populaires
         $popularRecipes = $this->recipeService->getPopularRecipes(6);
@@ -68,7 +68,7 @@ class HomeController extends BaseController
             return $authResponse;
         }
 
-        $locale = $this->getLocale();
+        $locale = $this->getDefaultLocale();
         $user = $this->getCurrentUser();
 
         // Récupérer les plannings récents de l'utilisateur
@@ -102,7 +102,7 @@ class HomeController extends BaseController
         }
 
         $data = [
-            'page_title' => $this->translation->translate('navigation.login', $this->getLocale()),
+            'page_title' => $this->translation->translate('navigation.login', $this->getDefaultLocale()),
             'flash_message' => $this->getFlashMessage()
         ];
 
@@ -153,7 +153,7 @@ class HomeController extends BaseController
         }
 
         $data = [
-            'page_title' => $this->translation->translate('navigation.register', $this->getLocale()),
+            'page_title' => $this->translation->translate('navigation.register', $this->getDefaultLocale()),
             'flash_message' => $this->getFlashMessage()
         ];
 
@@ -217,7 +217,7 @@ class HomeController extends BaseController
         }
 
         $user = $this->getCurrentUser();
-        $locale = $this->getLocale();
+        $locale = $this->getDefaultLocale();
 
         $data = [
             'page_title' => $this->translation->translate('profile.title', $locale),

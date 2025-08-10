@@ -6,15 +6,15 @@ namespace PrepMeal\Controllers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Views\Twig;
+use PrepMeal\Core\Views\TwigView;
 use PrepMeal\Core\Services\TranslationService;
 
 abstract class BaseController
 {
-    protected Twig $view;
+    protected TwigView $view;
     protected TranslationService $translation;
 
-    public function __construct(Twig $view, TranslationService $translation)
+    public function __construct(TwigView $view, TranslationService $translation)
     {
         $this->view = $view;
         $this->translation = $translation;
@@ -23,7 +23,7 @@ abstract class BaseController
     protected function render(ResponseInterface $response, string $template, array $data = []): ResponseInterface
     {
         // Ajouter les données communes à toutes les vues
-        $data['locale'] = $this->getLocale();
+        $data['locale'] = $this->getDefaultLocale();
         $data['translations'] = $this->getCommonTranslations();
         $data['current_user'] = $this->getCurrentUser();
         $data['seasons'] = $this->translation->getSeasons($data['locale']);
@@ -41,6 +41,11 @@ abstract class BaseController
             ->withStatus($status);
     }
 
+    protected function jsonResponse(ResponseInterface $response, array $data, int $status = 200): ResponseInterface
+    {
+        return $this->json($response, $data, $status);
+    }
+
     protected function redirect(ResponseInterface $response, string $url, int $status = 302): ResponseInterface
     {
         return $response
@@ -48,15 +53,32 @@ abstract class BaseController
             ->withStatus($status);
     }
 
-    protected function getLocale(): string
+    protected function getDefaultLocale(): string
     {
         // Détecter la locale depuis la session ou les paramètres
         return $_SESSION['locale'] ?? 'fr';
     }
 
+    protected function getLocale(ServerRequestInterface $request): string
+    {
+        // Détecter la locale depuis la requête, la session ou les paramètres
+        $locale = $request->getQueryParams()['locale'] ?? 
+                  $request->getParsedBody()['locale'] ?? 
+                  $_SESSION['locale'] ?? 
+                  'fr';
+        
+        return $locale;
+    }
+
     protected function getCurrentUser(): ?array
     {
         return $_SESSION['user'] ?? null;
+    }
+
+    protected function getUserId(ServerRequestInterface $request): int
+    {
+        $user = $this->getCurrentUser();
+        return $user['id'] ?? 0;
     }
 
     protected function isAuthenticated(): bool
@@ -75,7 +97,7 @@ abstract class BaseController
 
     protected function getCommonTranslations(): array
     {
-        $locale = $this->getLocale();
+        $locale = $this->getDefaultLocale();
         
         return [
             'common' => [
@@ -132,35 +154,35 @@ abstract class BaseController
             $value = $data[$field] ?? null;
             
             if (strpos($rule, 'required') !== false && empty($value)) {
-                $errors[$field] = $this->translation->translate('validation.required', $this->getLocale());
+                $errors[$field] = $this->translation->translate('validation.required', $this->getDefaultLocale());
                 continue;
             }
 
             if (!empty($value)) {
                 if (strpos($rule, 'email') !== false && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                    $errors[$field] = $this->translation->translate('validation.email', $this->getLocale());
+                    $errors[$field] = $this->translation->translate('validation.email', $this->getDefaultLocale());
                 }
 
                 if (preg_match('/min:(\d+)/', $rule, $matches)) {
                     $min = (int) $matches[1];
                     if (strlen($value) < $min) {
-                        $errors[$field] = $this->translation->translate('validation.min_length', $this->getLocale(), ['min' => $min]);
+                        $errors[$field] = $this->translation->translate('validation.min_length', $this->getDefaultLocale(), ['min' => $min]);
                     }
                 }
 
                 if (preg_match('/max:(\d+)/', $rule, $matches)) {
                     $max = (int) $matches[1];
                     if (strlen($value) > $max) {
-                        $errors[$field] = $this->translation->translate('validation.max_length', $this->getLocale(), ['max' => $max]);
+                        $errors[$field] = $this->translation->translate('validation.max_length', $this->getDefaultLocale(), ['max' => $max]);
                     }
                 }
 
                 if (strpos($rule, 'numeric') !== false && !is_numeric($value)) {
-                    $errors[$field] = $this->translation->translate('validation.numeric', $this->getLocale());
+                    $errors[$field] = $this->translation->translate('validation.numeric', $this->getDefaultLocale());
                 }
 
                 if (strpos($rule, 'integer') !== false && !filter_var($value, FILTER_VALIDATE_INT)) {
-                    $errors[$field] = $this->translation->translate('validation.integer', $this->getLocale());
+                    $errors[$field] = $this->translation->translate('validation.integer', $this->getDefaultLocale());
                 }
             }
         }

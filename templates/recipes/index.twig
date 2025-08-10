@@ -1,0 +1,336 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ translations.recipes.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header Section -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-8">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ translations.recipes.title }}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{{ translations.recipes.subtitle }}</p>
+            </div>
+            
+            <!-- Stats Bar -->
+            <div class="mt-8 flex justify-center space-x-8 text-sm text-gray-600">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>{{ translations.recipes.stats.total_recipes }}: <strong>{{ stats.total }}</strong></span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+                    </svg>
+                    <span>{{ translations.recipes.stats.filtered_recipes }}: <strong>{{ stats.filtered }}</strong></span>
+                </div>
+                {% if stats.favorites > 0 %}
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>{{ translations.recipes.stats.favorites }}: <strong>{{ stats.favorites }}</strong></span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Search and Filters Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ translations.recipes.filters.title }}</h2>
+                
+                <!-- Search Bar -->
+                <div class="mb-6">
+                    <form method="GET" action="/recipes" class="flex gap-4">
+                        <div class="flex-1">
+                            <input type="text" 
+                                   name="search" 
+                                   value="{{ filters.search }}" 
+                                   placeholder="{{ translations.recipes.search_placeholder }}"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg">
+                        </div>
+                        <button type="submit" 
+                                class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                            {{ translations.recipes.search }}
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Advanced Filters -->
+                <form method="GET" action="/recipes" class="space-y-4">
+                    {% if filters.search %}
+                        <input type="hidden" name="search" value="{{ filters.search }}">
+                    {% endif %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Category Filter -->
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ translations.recipes.filters.category }}
+                            </label>
+                            <select id="category" name="category" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">{{ translations.recipes.all_categories }}</option>
+                                {% for category in categories %}
+                                <option value="{{ category.value }}" {{ filters.category == category.value ? 'selected' : '' }}>
+                                    {{ category.label }} ({{ category.count }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Difficulty Filter -->
+                        <div>
+                            <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ translations.recipes.filters.difficulty }}
+                            </label>
+                            <select id="difficulty" name="difficulty" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">{{ translations.recipes.all_difficulties }}</option>
+                                {% for difficulty in difficulties %}
+                                <option value="{{ difficulty.value }}" {{ filters.difficulty == difficulty.value ? 'selected' : '' }}>
+                                    {{ difficulty.label }} ({{ difficulty.count }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Diet Type Filter -->
+                        <div>
+                            <label for="diet_type" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ translations.recipes.filters.diet_type }}
+                            </label>
+                            <select id="diet_type" name="diet_type" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">{{ translations.recipes.all_diet_types }}</option>
+                                {% for dietType in dietTypes %}
+                                <option value="{{ dietType.value }}" {{ filters.diet_type == dietType.value ? 'selected' : '' }}>
+                                    {{ dietType.label }} ({{ dietType.count }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div>
+                            <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ translations.recipes.sort_options.title }}
+                            </label>
+                            <select id="sort" name="sort" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="name_asc" {{ sortBy == 'name_asc' ? 'selected' : '' }}>
+                                    {{ translations.recipes.sort_options.name_asc }}
+                                </option>
+                                <option value="name_desc" {{ sortBy == 'name_desc' ? 'selected' : '' }}>
+                                    {{ translations.recipes.sort_options.name_desc }}
+                                </option>
+                                <option value="difficulty_asc" {{ sortBy == 'difficulty_asc' ? 'selected' : '' }}>
+                                    {{ translations.recipes.sort_options.difficulty_asc }}
+                                </option>
+                                <option value="time_asc" {{ sortBy == 'time_asc' ? 'selected' : '' }}>
+                                    {{ translations.recipes.sort_options.time_asc }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                        <button type="submit" 
+                                class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                            {{ translations.recipes.apply_filters }}
+                        </button>
+                        <a href="/recipes" 
+                           class="text-gray-600 hover:text-gray-800 font-medium">
+                            {{ translations.recipes.clear_filters }}
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recipe Grid -->
+        {% if recipes|length > 0 %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for recipe in recipes %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <!-- Recipe Image -->
+                <div class="relative h-48 bg-gradient-to-br from-green-100 to-green-200">
+                    {% if recipe.imageUrl %}
+                    <img src="{{ recipe.imageUrl }}" 
+                         alt="{{ recipe.getTitle(locale) }}" 
+                         class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Favorite Button -->
+                    <button onclick="toggleFavorite('{{ recipe.id }}')" 
+                            class="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white transition-colors">
+                        <svg class="w-5 h-5 {{ recipe.is_favorite ? 'text-red-500 fill-current' : 'text-gray-400' }}" 
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <!-- Difficulty Badge -->
+                    <div class="absolute bottom-3 left-3">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                   {% if recipe.difficulty == 'facile' %}bg-green-100 text-green-800
+                                   {% elseif recipe.difficulty == 'moyen' %}bg-yellow-100 text-yellow-800
+                                   {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ translations.recipes.difficulties[recipe.difficulty] }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Recipe Content -->
+                <div class="p-5">
+                    <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
+                        {{ recipe.getTitle(locale) }}
+                    </h3>
+                    
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {{ recipe.getDescription(locale) }}
+                    </p>
+
+                    <!-- Recipe Meta -->
+                    <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>{{ recipe.getTotalTime() }} {{ translations.recipes.minutes }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span>{{ recipe.servings }} {{ translations.recipes.servings }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Recipe Tags -->
+                    {% if recipe.tags|length > 0 %}
+                    <div class="flex flex-wrap gap-1 mb-4">
+                        {% for tag in recipe.tags|slice(0, 3) %}
+                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                            {{ tag }}
+                        </span>
+                        {% endfor %}
+                        {% if recipe.tags|length > 3 %}
+                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                            +{{ recipe.tags|length - 3 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-between items-center">
+                        <a href="/recipes/{{ recipe.id }}" 
+                           class="text-green-600 hover:text-green-800 font-medium text-sm">
+                            {{ translations.recipes.view_recipe }}
+                        </a>
+                        
+                        <div class="flex space-x-2">
+                            <button onclick="addToMealPlan('{{ recipe.id }}')" 
+                                    class="p-2 text-gray-400 hover:text-green-600 transition-colors" 
+                                    title="{{ translations.recipes.quick_actions.add_to_meal_plan }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="shareRecipe('{{ recipe.id }}')" 
+                                    class="p-2 text-gray-400 hover:text-blue-600 transition-colors" 
+                                    title="{{ translations.recipes.quick_actions.share_recipe }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- No Recipes Found -->
+        <div class="text-center py-16">
+            <div class="text-gray-400 mb-6">
+                <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-900 mb-4">{{ translations.recipes.no_recipes_found }}</h3>
+            <p class="text-gray-600 text-lg mb-8">{{ translations.recipes.try_different_filters }}</p>
+            <a href="/recipes" 
+               class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                {{ translations.recipes.clear_filters }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleFavorite(recipeId) {
+    fetch(`/recipes/${recipeId}/favorite`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function addToMealPlan(recipeId) {
+    // TODO: Implement add to meal plan functionality
+    alert('Add to meal plan functionality coming soon!');
+}
+
+function shareRecipe(recipeId) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Check out this recipe!',
+            url: `${window.location.origin}/recipes/${recipeId}`
+        });
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(`${window.location.origin}/recipes/${recipeId}`);
+        alert('Recipe link copied to clipboard!');
+    }
+}
+
+// Auto-submit form when filters change
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSelects = document.querySelectorAll('select[name="category"], select[name="difficulty"], select[name="diet_type"], select[name="sort"]');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
+    });
+});
+</script>
+{% endblock %}

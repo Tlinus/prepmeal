@@ -1,0 +1,177 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ page_title }} - PrepMeal{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">{{ hero_title }}</h1>
+                <p class="lead mb-4">{{ hero_subtitle }}</p>
+                <div class="d-flex gap-3">
+                    <a href="/meal-planning" class="btn btn-light btn-lg">
+                        <i class="fas fa-magic me-2"></i>{{ cta_generate }}
+                    </a>
+                    <a href="/recipes" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-book-open me-2"></i>{{ cta_browse }}
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://via.placeholder.com/500x400/28a745/ffffff?text=PrepMeal" 
+                     alt="PrepMeal" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">Pourquoi choisir PrepMeal ?</h2>
+                <p class="lead text-muted">Une planification de repas intelligente et personnalisée</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-leaf fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">{{ features.seasonal }}</h5>
+                        <p class="card-text text-muted">Recettes adaptées aux saisons et aux ingrédients locaux</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-user-cog fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">{{ features.personalized }}</h5>
+                        <p class="card-text text-muted">Planification personnalisée selon vos goûts et besoins</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-heart fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">{{ features.healthy }}</h5>
+                        <p class="card-text text-muted">Recettes équilibrées et nutritives pour votre santé</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">{{ features.easy }}</h5>
+                        <p class="card-text text-muted">Recettes simples et rapides à préparer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Seasonal Ingredients Section -->
+{% if seasonal_ingredients %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    Ingrédients de saison - {{ current_season|title }}
+                </h3>
+            </div>
+        </div>
+        
+        <div class="row g-3">
+            {% for ingredient in seasonal_ingredients %}
+            <div class="col-md-3 col-sm-6">
+                <div class="card border-0 bg-white shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-carrot fa-2x text-success mb-2"></i>
+                        <h6 class="card-title">{{ ingredient.name }}</h6>
+                        <small class="text-muted">{{ ingredient.season }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Popular Recipes Section -->
+{% if popular_recipes %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-star me-2"></i>
+                    Recettes populaires
+                </h3>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for recipe in popular_recipes %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    {% if recipe.image_url %}
+                    <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.title }}">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ recipe.title }}</h5>
+                        <p class="card-text text-muted">{{ recipe.description|slice(0, 100) }}...</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <span class="badge bg-primary">{{ recipe.difficulty }}</span>
+                                <span class="badge bg-secondary">{{ recipe.prep_time }} min</span>
+                            </div>
+                            <a href="/recipes/{{ recipe.id }}" class="btn btn-outline-primary btn-sm">
+                                Voir la recette
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="/recipes" class="btn btn-primary btn-lg">
+                <i class="fas fa-book-open me-2"></i>Voir toutes les recettes
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Prêt à commencer votre planification de repas ?</h2>
+        <p class="lead mb-4">Rejoignez PrepMeal et découvrez une nouvelle façon de cuisiner</p>
+        <a href="/register" class="btn btn-light btn-lg">
+            <i class="fas fa-user-plus me-2"></i>Commencer gratuitement
+        </a>
+    </div>
+</section>
+{% endblock %}

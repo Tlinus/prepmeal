@@ -11,7 +11,44 @@ class Ingredient
         private array $quantity,
         private bool $seasonal = false,
         private array $season = []
-    ) {}
+    ) {
+        // Validate and normalize quantity data
+        $this->quantity = $this->normalizeQuantityData($quantity);
+    }
+    
+    /**
+     * Normalize quantity data to ensure proper structure
+     */
+    private function normalizeQuantityData(array $quantity): array
+    {
+        $normalized = [];
+        
+        foreach ($quantity as $system => $systemQuantity) {
+            if (is_array($systemQuantity) && isset($systemQuantity['amount']) && isset($systemQuantity['unit'])) {
+                // Already properly structured
+                $normalized[$system] = $systemQuantity;
+            } elseif (is_array($systemQuantity)) {
+                // Try to extract amount and unit from array
+                $amount = $systemQuantity['amount'] ?? $systemQuantity[0] ?? 0;
+                $unit = $systemQuantity['unit'] ?? $systemQuantity[1] ?? '';
+                $normalized[$system] = ['amount' => $amount, 'unit' => $unit];
+            } elseif (is_string($systemQuantity)) {
+                // Try to decode JSON string
+                $decoded = json_decode($systemQuantity, true);
+                if (is_array($decoded) && isset($decoded['amount']) && isset($decoded['unit'])) {
+                    $normalized[$system] = $decoded;
+                } else {
+                    // Default structure
+                    $normalized[$system] = ['amount' => 0, 'unit' => ''];
+                }
+            } else {
+                // Default structure for any other type
+                $normalized[$system] = ['amount' => 0, 'unit' => ''];
+            }
+        }
+        
+        return $normalized;
+    }
 
     public function getName(string $locale = 'fr'): string
     {
@@ -25,7 +62,32 @@ class Ingredient
 
     public function getQuantity(string $system = 'metric'): array
     {
-        return $this->quantity[$system] ?? $this->quantity['metric'] ?? [];
+        $quantity = $this->quantity[$system] ?? $this->quantity['metric'] ?? [];
+        
+        // Validation: ensure we always return an array with proper structure
+        if (!is_array($quantity)) {
+            // If quantity is a string or other type, try to parse it or return default
+            if (is_string($quantity)) {
+                // Try to decode if it's a JSON string
+                $decoded = json_decode($quantity, true);
+                if (is_array($decoded)) {
+                    $quantity = $decoded;
+                } else {
+                    // If it's just a string, create a default structure
+                    $quantity = ['amount' => 0, 'unit' => ''];
+                }
+            } else {
+                // For any other type, return default structure
+                $quantity = ['amount' => 0, 'unit' => ''];
+            }
+        }
+        
+        // Ensure the quantity has the expected structure
+        if (!isset($quantity['amount']) || !isset($quantity['unit'])) {
+            $quantity = ['amount' => $quantity['amount'] ?? 0, 'unit' => $quantity['unit'] ?? ''];
+        }
+        
+        return $quantity;
     }
 
     public function getQuantities(): array
@@ -36,13 +98,23 @@ class Ingredient
     public function getAmount(string $system = 'metric'): float
     {
         $quantity = $this->getQuantity($system);
-        return $quantity['amount'] ?? 0.0;
+        $amount = $quantity['amount'] ?? 0;
+        
+        // Ensure we return a float
+        if (is_numeric($amount)) {
+            return (float) $amount;
+        }
+        
+        return 0.0;
     }
 
     public function getUnit(string $system = 'metric'): string
     {
         $quantity = $this->getQuantity($system);
-        return $quantity['unit'] ?? '';
+        $unit = $quantity['unit'] ?? '';
+        
+        // Ensure we return a string
+        return is_string($unit) ? $unit : '';
     }
 
     public function isSeasonal(): bool

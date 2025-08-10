@@ -1,0 +1,164 @@
+# Dependencies
+/vendor/
+/node_modules/
+composer.lock
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+
+# Configuration files with sensitive data
+config/database.php
+config/app.php
+config/mail.php
+config/services.php
+config/container.php
+*.config.php
+config/*.local.php
+db_config.php
+
+# Database files
+*.sql
+*.sqlite
+*.db
+database/*.sql
+database/*.db
+
+# Logs
+/logs/
+*.log
+error_log
+access_log
+php_errors.log
+
+# Cache and temporary files
+/cache/
+/tmp/
+/temp/
+*.cache
+*.tmp
+*.temp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# PHP specific
+*.php~
+*.php.bak
+*.php.old
+*.php.orig
+
+# Session files
+/sessions/
+*.sess
+
+# Upload directories
+/uploads/
+/public/uploads/
+/storage/uploads/
+
+# Generated documentation
+/docs/generated/
+/phpdoc/
+
+# Test coverage
+/coverage/
+.phpunit.result.cache
+
+# Application specific
+# Exclude any files that might contain sensitive information
+add_ingredients_to_recipes.php
+generate_recipes.php
+generate_100_recipes.php
+complete_100_recipes.php
+database_init.php
+cloudron_init_db.php
+debug_database.php
+debug_db.php
+fix_ingredient_quantities.php
+*.setup.php
+*.install.php
+composer-setup.php
+
+# Cloudron specific (if any)
+.cloudron/
+cloudron.json
+
+# WAMP specific
+wamp/
+wamp64/
+
+# Local development files
+local/
+dev/
+development/
+
+# Backup directories
+backup/
+backups/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+
+# Database dumps
+dump/
+dumps/
+*.dump
+
+# Configuration backups
+config.backup/
+config.bak/
+
+# Temporary script files
+temp_*.php
+test_*.php
+debug_*.php

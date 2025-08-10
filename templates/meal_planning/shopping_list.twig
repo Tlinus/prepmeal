@@ -1,0 +1,407 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ translations.meal_planning.shopping_list|default('Liste de courses') }} - {{ plan.title|default('Planning') }}{% endblock %}
+
+{% block head %}
+<style>
+    .shopping-list-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .category-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+    }
+    
+    .category-header {
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .item-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .item-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .item-content {
+        padding: 1rem;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+    
+    .item-info {
+        flex: 1;
+    }
+    
+    .item-quantity {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .item-checkbox {
+        margin-right: 1rem;
+    }
+    
+    .item-checked {
+        opacity: 0.6;
+        text-decoration: line-through;
+    }
+    
+    .item-checked .item-quantity {
+        background: #6c757d;
+    }
+    
+    .summary-card {
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .summary-stat {
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .summary-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    
+    .summary-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .print-button {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 1000;
+    }
+    
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        
+        .print-button {
+            display: none !important;
+        }
+        
+        .container {
+            max-width: 100% !important;
+        }
+        
+        .category-card {
+            break-inside: avoid;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="shopping-list-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    <i class="fas fa-shopping-cart me-3"></i>{{ translations.meal_planning.shopping_list|default('Liste de courses') }}
+                </h1>
+                <p class="lead mb-0">
+                    <i class="fas fa-calendar me-2"></i>
+                    {{ plan.title|default('Planning') }} - {{ plan.start_date|date('d/m/Y') }} - {{ plan.end_date|date('d/m/Y') }}
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-light" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>{{ translations.common.print|default('Imprimer') }}
+                    </button>
+                    <a href="/export/shopping-list/{{ plan.id }}" class="btn btn-light">
+                        <i class="fas fa-download me-2"></i>{{ translations.common.download|default('Télécharger') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    {% if shoppingList %}
+    <div class="summary-card">
+        <h3 class="mb-4">
+            <i class="fas fa-chart-bar me-2"></i>{{ translations.meal_planning.shopping_summary|default('Résumé des courses') }}
+        </h3>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="summary-stat">
+                    <div class="summary-value">{{ shoppingList|length }}</div>
+                    <div class="summary-label">{{ translations.meal_planning.categories|default('Catégories') }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-stat">
+                    <div class="summary-value" id="totalItems">0</div>
+                    <div class="summary-label">{{ translations.meal_planning.total_items|default('Articles totaux') }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-stat">
+                    <div class="summary-value" id="checkedItems">0</div>
+                    <div class="summary-label">{{ translations.meal_planning.checked_items|default('Articles cochés') }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-stat">
+                    <div class="summary-value" id="remainingItems">0</div>
+                    <div class="summary-label">{{ translations.meal_planning.remaining_items|default('Articles restants') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Shopping List -->
+    {% if shoppingList %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-list me-2"></i>{{ translations.meal_planning.shopping_items|default('Articles à acheter') }}
+            </h3>
+        </div>
+    </div>
+
+    {% for category, items in shoppingList %}
+    <div class="category-card">
+        <div class="category-header">
+            <h4 class="mb-0">
+                <i class="fas fa-tags me-2"></i>{{ category|title }}
+                <span class="badge bg-primary ms-2">{{ items|length }} {{ translations.meal_planning.items|default('articles') }}</span>
+            </h4>
+        </div>
+        
+        <div class="card-body">
+            {% for item in items %}
+            <div class="item-card" data-item-id="{{ item.id|default(loop.index) }}">
+                <div class="item-content">
+                    <div class="form-check item-checkbox">
+                        <input class="form-check-input" type="checkbox" id="item_{{ item.id|default(loop.index) }}" 
+                               onchange="toggleItem(this, '{{ item.id|default(loop.index) }}')">
+                    </div>
+                    <div class="item-info">
+                        <h6 class="mb-1 fw-bold">{{ item.name }}</h6>
+                        {% if item.description %}
+                        <small class="text-muted">{{ item.description }}</small>
+                        {% endif %}
+                        {% if item.notes %}
+                        <small class="text-info d-block">{{ item.notes }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="item-quantity">
+                        {{ item.quantity }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Empty State -->
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">{{ translations.meal_planning.no_shopping_list|default('Aucun article à acheter') }}</h4>
+        <p class="text-muted">{{ translations.meal_planning.no_shopping_list_message|default('Ce planning ne nécessite pas d\'achats supplémentaires.') }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Additional Notes -->
+    {% if plan.notes or plan.preferences %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sticky-note me-2"></i>{{ translations.meal_planning.notes|default('Notes et préférences') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if plan.notes %}
+                    <div class="mb-3">
+                        <h6 class="fw-semibold">{{ translations.meal_planning.plan_notes|default('Notes du planning') }}</h6>
+                        <p class="mb-0">{{ plan.notes }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if plan.preferences %}
+                    <div>
+                        <h6 class="fw-semibold">{{ translations.meal_planning.preferences|default('Préférences') }}</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if plan.preferences.diet_type %}
+                            <span class="badge bg-primary">{{ translations.meal_planning.diet_type[plan.preferences.diet_type]|default(plan.preferences.diet_type) }}</span>
+                            {% endif %}
+                            {% if plan.preferences.period %}
+                            <span class="badge bg-info">{{ translations.meal_planning.period[plan.preferences.period]|default(plan.preferences.period) }}</span>
+                            {% endif %}
+                            {% if plan.preferences.servings %}
+                            <span class="badge bg-warning">{{ plan.preferences.servings }} {{ translations.meal_planning.servings.persons|default('personnes') }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Floating Print Button -->
+<div class="print-button no-print">
+    <button type="button" class="btn btn-primary btn-lg rounded-circle shadow" onclick="window.print()" title="{{ translations.common.print|default('Imprimer') }}">
+        <i class="fas fa-print"></i>
+    </button>
+</div>
+
+<script>
+// Initialize counters
+let totalItems = 0;
+let checkedItems = 0;
+
+// Count total items
+document.querySelectorAll('.item-card').forEach(item => {
+    totalItems++;
+});
+
+// Update counters
+function updateCounters() {
+    document.getElementById('totalItems').textContent = totalItems;
+    document.getElementById('checkedItems').textContent = checkedItems;
+    document.getElementById('remainingItems').textContent = totalItems - checkedItems;
+}
+
+// Toggle item
+function toggleItem(checkbox, itemId) {
+    const itemCard = checkbox.closest('.item-card');
+    const itemInfo = itemCard.querySelector('.item-info');
+    const itemQuantity = itemCard.querySelector('.item-quantity');
+    
+    if (checkbox.checked) {
+        itemCard.classList.add('item-checked');
+        checkedItems++;
+    } else {
+        itemCard.classList.remove('item-checked');
+        checkedItems--;
+    }
+    
+    updateCounters();
+    
+    // Save to localStorage
+    const shoppingListState = JSON.parse(localStorage.getItem('shoppingListState') || '{}');
+    shoppingListState[itemId] = checkbox.checked;
+    localStorage.setItem('shoppingListState', JSON.stringify(shoppingListState));
+}
+
+// Load saved state
+document.addEventListener('DOMContentLoaded', function() {
+    const shoppingListState = JSON.parse(localStorage.getItem('shoppingListState') || '{}');
+    
+    Object.keys(shoppingListState).forEach(itemId => {
+        const checkbox = document.getElementById(`item_${itemId}`);
+        if (checkbox) {
+            checkbox.checked = shoppingListState[itemId];
+            if (shoppingListState[itemId]) {
+                checkbox.closest('.item-card').classList.add('item-checked');
+                checkedItems++;
+            }
+        }
+    });
+    
+    updateCounters();
+});
+
+// Clear all checked items
+function clearCheckedItems() {
+    if (confirm('{{ translations.meal_planning.confirm_clear_checked|default("Êtes-vous sûr de vouloir effacer tous les articles cochés ?") }}')) {
+        document.querySelectorAll('.item-card.item-checked').forEach(itemCard => {
+            const checkbox = itemCard.querySelector('input[type="checkbox"]');
+            checkbox.checked = false;
+            itemCard.classList.remove('item-checked');
+        });
+        
+        checkedItems = 0;
+        updateCounters();
+        
+        // Clear localStorage
+        localStorage.removeItem('shoppingListState');
+    }
+}
+
+// Select all items
+function selectAllItems() {
+    document.querySelectorAll('.item-card').forEach(itemCard => {
+        const checkbox = itemCard.querySelector('input[type="checkbox"]');
+        if (!checkbox.checked) {
+            checkbox.checked = true;
+            itemCard.classList.add('item-checked');
+            checkedItems++;
+        }
+    });
+    
+    updateCounters();
+    
+    // Save to localStorage
+    const shoppingListState = {};
+    document.querySelectorAll('.item-card').forEach(itemCard => {
+        const checkbox = itemCard.querySelector('input[type="checkbox"]');
+        const itemId = checkbox.id.replace('item_', '');
+        shoppingListState[itemId] = checkbox.checked;
+    });
+    localStorage.setItem('shoppingListState', JSON.stringify(shoppingListState));
+}
+
+// Deselect all items
+function deselectAllItems() {
+    document.querySelectorAll('.item-card').forEach(itemCard => {
+        const checkbox = itemCard.querySelector('input[type="checkbox"]');
+        checkbox.checked = false;
+        itemCard.classList.remove('item-checked');
+    });
+    
+    checkedItems = 0;
+    updateCounters();
+    
+    // Clear localStorage
+    localStorage.removeItem('shoppingListState');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,623 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ translations.meal_planning.title }} - PrepMeal{% endblock %}
+
+{% block head %}
+<style>
+    .ingredient-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: white;
+    }
+    
+    .ingredient-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .ingredient-card.selected {
+        border-color: var(--primary-color);
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    }
+    
+    .ingredient-card.seasonal {
+        border-left: 4px solid #28a745;
+    }
+    
+    .ingredient-card.seasonal::before {
+        content: "🌱";
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 16px;
+    }
+    
+    .category-section {
+        margin-bottom: 2rem;
+    }
+    
+    .category-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .diet-type-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: white;
+    }
+    
+    .diet-type-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+    }
+    
+    .diet-type-card.selected {
+        border-color: var(--primary-color);
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+    }
+    
+    .allergen-filter {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .allergen-checkbox {
+        margin-right: 0.5rem;
+    }
+    
+    .preferences-panel {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .season-badge {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-spinner {
+        display: none;
+    }
+    
+    .planning-result {
+        display: none;
+    }
+    
+    .nutritional-summary {
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .shopping-list {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold text-center mb-3">
+                <i class="fas fa-calendar-alt me-3"></i>{{ translations.meal_planning.title }}
+            </h1>
+            <p class="lead text-center text-muted mb-4">
+                {{ translations.meal_planning.subtitle|default('Générez vos menus personnalisés avec des recettes de saison') }}
+            </p>
+            
+            <!-- Season Badge -->
+            <div class="text-center">
+                <span class="season-badge">
+                    <i class="fas fa-leaf me-2"></i>
+                    {{ translations.meal_planning.current_season|default('Saison actuelle') }}: 
+                    {{ translations.seasons[current_season]|default(current_season|title) }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences Panel -->
+    <div class="preferences-panel">
+        <h3 class="mb-4">
+            <i class="fas fa-cog me-2"></i>{{ translations.meal_planning.preferences|default('Préférences') }}
+        </h3>
+        
+        <form id="mealPlanningForm">
+            <!-- Diet Type Selection -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">{{ translations.meal_planning.diet_type.label|default('Type de régime') }}</h5>
+                    <div class="row g-3">
+                        {% for dietKey, dietName in dietTypes %}
+                        <div class="col-md-4 col-lg-3">
+                            <div class="diet-type-card p-3 h-100" data-diet="{{ dietKey }}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="diet_type" 
+                                           id="diet_{{ dietKey }}" value="{{ dietKey }}" 
+                                           {% if dietKey == 'equilibre' %}checked{% endif %}>
+                                    <label class="form-check-label fw-semibold" for="diet_{{ dietKey }}">
+                                        {{ dietName }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Allergens Filter -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">{{ translations.meal_planning.allergens.label|default('Allergènes à éviter') }}</h5>
+                    <div class="allergen-filter">
+                        <div class="row g-3">
+                            {% for allergenKey, allergenName in allergens %}
+                            <div class="col-md-3 col-sm-6">
+                                <div class="form-check">
+                                    <input class="form-check-input allergen-checkbox" type="checkbox" 
+                                           name="excluded_allergens[]" id="allergen_{{ allergenKey }}" 
+                                           value="{{ allergenKey }}">
+                                    <label class="form-check-label" for="allergen_{{ allergenKey }}">
+                                        {{ allergenName }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Period and Servings -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5 class="mb-3">{{ translations.meal_planning.period.label|default('Période') }}</h5>
+                    <div class="d-flex gap-3">
+                        {% for periodKey, periodName in periods %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="period" 
+                                   id="period_{{ periodKey }}" value="{{ periodKey }}" 
+                                   {% if periodKey == 'week' %}checked{% endif %}>
+                            <label class="form-check-label" for="period_{{ periodKey }}">
+                                {{ periodName }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="mb-3">{{ translations.meal_planning.servings.label|default('Nombre de portions') }}</h5>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="number" name="servings" value="2" min="1" max="10" 
+                               class="form-control" style="width: 100px;">
+                        <span class="text-muted">{{ translations.meal_planning.servings.persons|default('personnes') }}</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Seasonal Ingredients Selection -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>
+                    <i class="fas fa-leaf me-2"></i>{{ translations.meal_planning.ingredients.title|default('Sélection d\'ingrédients de saison') }}
+                </h3>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="selectAllBtn">
+                        <i class="fas fa-check-double me-1"></i>{{ translations.meal_planning.ingredients.select_all|default('Tout sélectionner') }}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="deselectAllBtn">
+                        <i class="fas fa-times me-1"></i>{{ translations.meal_planning.ingredients.deselect_all|default('Tout désélectionner') }}
+                    </button>
+                </div>
+            </div>
+            
+            <p class="text-muted mb-4">
+                {{ translations.meal_planning.ingredients.subtitle|default('Choisissez vos ingrédients préférés pour personnaliser votre planning') }}
+            </p>
+
+            <!-- Ingredients by Category -->
+            {% for category, ingredients in seasonalIngredients %}
+            <div class="category-section">
+                <h4 class="category-title">
+                    <i class="fas fa-tags me-2"></i>{{ category|title }}
+                </h4>
+                <div class="row g-3">
+                    {% for ingredient in ingredients %}
+                    <div class="col-md-3 col-sm-6">
+                        <div class="ingredient-card p-3 position-relative h-100 {% if ingredient.seasonal %}seasonal{% endif %}" 
+                             data-ingredient="{{ ingredient.key }}">
+                            <div class="form-check">
+                                <input class="form-check-input ingredient-checkbox" type="checkbox" 
+                                       name="selected_ingredients[]" id="ingredient_{{ ingredient.key }}" 
+                                       value="{{ ingredient.key }}" 
+                                       {% if ingredient.seasonal %}checked{% endif %}>
+                                <label class="form-check-label fw-semibold" for="ingredient_{{ ingredient.key }}">
+                                    {{ ingredient.name }}
+                                </label>
+                            </div>
+                            {% if ingredient.seasonal %}
+                            <small class="text-success">
+                                <i class="fas fa-leaf me-1"></i>{{ translations.meal_planning.ingredients.seasonal|default('De saison') }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <button type="button" class="btn btn-primary btn-lg me-3" id="generatePlanBtn">
+                <i class="fas fa-magic me-2"></i>{{ translations.meal_planning.generate_plan|default('Générer le planning') }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-lg" id="savePreferencesBtn">
+                <i class="fas fa-save me-2"></i>{{ translations.meal_planning.ingredients.save_preferences|default('Sauvegarder les préférences') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner text-center py-5" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted">Génération de votre planning personnalisé...</p>
+    </div>
+
+    <!-- Planning Result -->
+    <div class="planning-result" id="planningResult">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-4">
+                    <i class="fas fa-calendar-check me-2"></i>{{ translations.meal_planning.plan_generated|default('Planning généré') }}
+                </h3>
+            </div>
+        </div>
+
+        <!-- Nutritional Summary -->
+        <div class="nutritional-summary" id="nutritionalSummary">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-pie me-2"></i>{{ translations.meal_planning.nutritional_summary|default('Résumé nutritionnel') }}
+            </h5>
+            <div class="row" id="nutritionalData">
+                <!-- Nutritional data will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Meal Plan -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-utensils me-2"></i>{{ translations.meal_planning.meal_plan|default('Planning des repas') }}
+                        </h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="exportPdfBtn">
+                                <i class="fas fa-file-pdf me-1"></i>PDF
+                            </button>
+                            <button type="button" class="btn btn-outline-success btn-sm" id="exportIcalBtn">
+                                <i class="fas fa-calendar me-1"></i>iCal
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="mealPlanContent">
+                        <!-- Meal plan content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping List -->
+        <div class="row">
+            <div class="col-12">
+                <div class="shopping-list">
+                    <h5 class="mb-3">
+                        <i class="fas fa-shopping-cart me-2"></i>{{ translations.meal_planning.shopping_list|default('Liste de courses') }}
+                    </h5>
+                    <div id="shoppingListContent">
+                        <!-- Shopping list content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Diet type selection
+    const dietCards = document.querySelectorAll('.diet-type-card');
+    dietCards.forEach(card => {
+        card.addEventListener('click', function() {
+            dietCards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+        });
+    });
+
+    // Ingredient selection
+    const ingredientCards = document.querySelectorAll('.ingredient-card');
+    ingredientCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.matches('input[type="checkbox"]')) {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+            }
+        });
+    });
+
+    // Select all ingredients
+    document.getElementById('selectAllBtn').addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.ingredient-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = true;
+            checkbox.closest('.ingredient-card').classList.add('selected');
+        });
+    });
+
+    // Deselect all ingredients
+    document.getElementById('deselectAllBtn').addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.ingredient-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            checkbox.closest('.ingredient-card').classList.remove('selected');
+        });
+    });
+
+    // Generate plan
+    document.getElementById('generatePlanBtn').addEventListener('click', function() {
+        const form = document.getElementById('mealPlanningForm');
+        const formData = new FormData(form);
+        
+        // Add selected ingredients
+        const selectedIngredients = [];
+        document.querySelectorAll('.ingredient-checkbox:checked').forEach(checkbox => {
+            selectedIngredients.push(checkbox.value);
+        });
+        formData.append('selected_ingredients', JSON.stringify(selectedIngredients));
+
+        // Show loading spinner
+        document.getElementById('loadingSpinner').style.display = 'block';
+        document.getElementById('planningResult').style.display = 'none';
+
+        // Send request
+        fetch('/meal-planning/generate', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text().then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Invalid JSON response:', text);
+                    throw new Error('Réponse invalide du serveur');
+                }
+            });
+        })
+        .then(data => {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            
+            if (data.success) {
+                displayPlanningResult(data);
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            console.error('Error:', error);
+            alert('Erreur lors de la génération du planning: ' + error.message);
+        });
+    });
+
+    // Save preferences
+    document.getElementById('savePreferencesBtn').addEventListener('click', function() {
+        const form = document.getElementById('mealPlanningForm');
+        const formData = new FormData(form);
+        
+        // Add selected ingredients
+        const selectedIngredients = [];
+        document.querySelectorAll('.ingredient-checkbox:checked').forEach(checkbox => {
+            selectedIngredients.push(checkbox.value);
+        });
+        formData.append('selected_ingredients', JSON.stringify(selectedIngredients));
+
+        fetch('/meal-planning/save-preferences', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('{{ translations.meal_planning.ingredients.preferences_saved|default("Préférences sauvegardées avec succès") }}');
+            } else {
+                alert('{{ translations.meal_planning.ingredients.preferences_error|default("Erreur lors de la sauvegarde") }}');
+            }
+        })
+        .catch(error => {
+            alert('Erreur: ' + error.message);
+        });
+    });
+
+    function displayPlanningResult(data) {
+        // Display nutritional summary
+        const nutritionalData = document.getElementById('nutritionalData');
+        if (data.nutritionalBalance) {
+            nutritionalData.innerHTML = `
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-muted">Calories</h6>
+                        <h4 class="text-primary">${data.nutritionalBalance.total_calories || 0}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-muted">Protéines</h6>
+                        <h4 class="text-success">${data.nutritionalBalance.total_protein || 0}g</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-muted">Glucides</h6>
+                        <h4 class="text-warning">${data.nutritionalBalance.total_carbs || 0}g</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h6 class="text-muted">Lipides</h6>
+                        <h4 class="text-info">${data.nutritionalBalance.total_fat || 0}g</h4>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display meal plan
+        const mealPlanContent = document.getElementById('mealPlanContent');
+        if (data.plan && data.plan.days) {
+            let mealPlanHtml = '';
+            data.plan.days.forEach(day => {
+                mealPlanHtml += `
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">${day.date} - ${day.day_of_week || 'Jour non défini'}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6 class="text-primary">Petit-déjeuner</h6>
+                                    <p class="mb-1">${day.meals.breakfast ? day.meals.breakfast.title : 'Non défini'}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-success">Déjeuner</h6>
+                                    <p class="mb-1">${day.meals.lunch ? day.meals.lunch.title : 'Non défini'}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-warning">Dîner</h6>
+                                    <p class="mb-1">${day.meals.dinner ? day.meals.dinner.title : 'Non défini'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            mealPlanContent.innerHTML = mealPlanHtml;
+        }
+
+        // Display shopping list
+        const shoppingListContent = document.getElementById('shoppingListContent');
+        if (data.shoppingList && typeof data.shoppingList === 'object') {
+            // Debug log pour vérifier la structure
+            console.log('Shopping list structure:', data.shoppingList);
+            
+            let shoppingListHtml = '';
+            
+            // Iterate through categories
+            Object.keys(data.shoppingList).forEach(category => {
+                const items = data.shoppingList[category];
+                if (Array.isArray(items) && items.length > 0) {
+                    shoppingListHtml += `
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-tags me-2"></i>${category}
+                                    <span class="badge bg-primary ms-2">${items.length} articles</span>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                    `;
+                    
+                    items.forEach(item => {
+                        // Debug log pour voir la structure exacte de l'item
+                        console.log('Item structure:', item);
+                        
+                        // Formater la quantité correctement
+                        let quantityText = '';
+                        if (item.quantity && typeof item.quantity === 'object') {
+                            if (item.quantity.amount !== undefined && item.quantity.unit) {
+                                quantityText = `${item.quantity.amount} ${item.quantity.unit}`;
+                            } else if (item.quantity.metric && item.quantity.metric.amount !== undefined && item.quantity.metric.unit) {
+                                quantityText = `${item.quantity.metric.amount} ${item.quantity.metric.unit}`;
+                            } else if (item.quantity.imperial && item.quantity.imperial.amount !== undefined && item.quantity.imperial.unit) {
+                                quantityText = `${item.quantity.imperial.amount} ${item.quantity.imperial.unit}`;
+                            } else {
+                                quantityText = 'Quantité non définie';
+                            }
+                        } else {
+                            quantityText = item.quantity || 'Quantité non définie';
+                        }
+                        
+                        shoppingListHtml += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>${item.name}</span>
+                                <span class="badge bg-primary rounded-pill">${quantityText}</span>
+                            </li>
+                        `;
+                    });
+                    
+                    shoppingListHtml += `
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (shoppingListHtml === '') {
+                shoppingListHtml = '<p class="text-muted">Aucun article à acheter.</p>';
+            }
+            
+            shoppingListContent.innerHTML = shoppingListHtml;
+        } else {
+            console.warn('Shopping list not available or invalid structure:', data.shoppingList);
+            shoppingListContent.innerHTML = '<p class="text-muted">Liste de courses non disponible.</p>';
+        }
+
+        // Show result
+        document.getElementById('planningResult').style.display = 'block';
+        document.getElementById('planningResult').scrollIntoView({ behavior: 'smooth' });
+    }
+});
+</script>
+{% endblock %}

@@ -6,28 +6,22 @@ namespace PrepMeal\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use PrepMeal\Core\Services\SubscriptionService;
+use PrepMeal\Core\Services\StripeSubscriptionService;
 use PrepMeal\Core\Services\TranslationService;
-use Stripe\Stripe;
-use Stripe\Customer;
-use Stripe\Subscription;
-use Stripe\PaymentIntent;
-use Stripe\Webhook;
 
 class SubscriptionController extends BaseController
 {
-    private SubscriptionService $subscriptionService;
+    private StripeSubscriptionService $stripeService;
     private TranslationService $translationService;
 
     public function __construct(
-        SubscriptionService $subscriptionService,
-        TranslationService $translationService
+        \PrepMeal\Core\Views\TwigView $view,
+        TranslationService $translationService,
+        StripeSubscriptionService $stripeService
     ) {
-        $this->subscriptionService = $subscriptionService;
+        parent::__construct($view, $translationService);
+        $this->stripeService = $stripeService;
         $this->translationService = $translationService;
-        
-        // Initialiser Stripe
-        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
     }
 
     public function index(Request $request, Response $response): Response
@@ -35,13 +29,14 @@ class SubscriptionController extends BaseController
         $locale = $this->getLocale($request);
         $userId = $this->getUserId($request);
         
-        $plans = $this->subscriptionService->getAvailablePlans();
-        $currentSubscription = $this->subscriptionService->getUserSubscription($userId);
+        $subscriptions = $this->stripeService->getUserSubscriptions($userId);
+        $currentSubscription = $this->getCurrentSubscription($subscriptions);
+        $limits = $this->stripeService->getSubscriptionLimits($currentSubscription['plan_type'] ?? 'free');
 
         $data = [
-            'plans' => $plans,
+            'subscriptions' => $subscriptions,
             'currentSubscription' => $currentSubscription,
-            'stripePublicKey' => $_ENV['STRIPE_PUBLIC_KEY'],
+            'limits' => $limits,
             'locale' => $locale,
             'translations' => $this->translationService->getTranslations($locale, ['subscription', 'common'])
         ];
@@ -49,57 +44,23 @@ class SubscriptionController extends BaseController
         return $this->render($response, 'subscription/index.twig', $data);
     }
 
-    public function manage(Request $request, Response $response): Response
+    public function createSubscription(Request $request, Response $response): Response
     {
         $locale = $this->getLocale($request);
         $userId = $this->getUserId($request);
-        
-        $subscription = $this->subscriptionService->getUserSubscription($userId);
-        $paymentHistory = $this->subscriptionService->getPaymentHistory($userId);
-
-        $data = [
-            'subscription' => $subscription,
-            'paymentHistory' => $paymentHistory,
-            'locale' => $locale,
-            'translations' => $this->translationService->getTranslations($locale, ['subscription', 'common'])
-        ];
-
-        return $this->render($response, 'subscription/manage.twig', $data);
-    }
-
-    public function create(Request $request, Response $response): Response
-    {
-        $userId = $this->getUserId($request);
         $data = $request->getParsedBody();
-        
-        $planId = $data['plan_id'] ?? null;
+
+        $planType = $data['plan_type'] ?? '';
         $paymentMethodId = $data['payment_method_id'] ?? null;
 
-        if (!$planId || !$paymentMethodId) {
-            return $this->jsonResponse($response, [
-                'success' => false,
-                'message' => 'Données manquantes'
-            ], 400);
-        }
-
         try {
-            $user = $this->subscriptionService->getUser($userId);
-            
-            // Créer ou récupérer le client Stripe
-            $stripeCustomer = $this->getOrCreateStripeCustomer($user);
-            
-            // Attacher la méthode de paiement
-            $this->attachPaymentMethod($stripeCustomer->id, $paymentMethodId);
-            
-            // Créer l'abonnement
-            $subscription = $this->createStripeSubscription($stripeCustomer->id, $planId);
-            
-            // Sauvegarder en base
-            $this->subscriptionService->saveSubscription($userId, $subscription);
+            $result = $this->stripeService->createSubscription($userId, $planType, $paymentMethodId);
             
             return $this->jsonResponse($response, [
                 'success' => true,
-                'subscription_id' => $subscription->id,
+                'subscription_id' => $result['subscription_id'],
+                'status' => $result['status'],
+                'client_secret' => $result['client_secret'],
                 'message' => 'Abonnement créé avec succès'
             ]);
 
@@ -111,31 +72,25 @@ class SubscriptionController extends BaseController
         }
     }
 
-    public function cancel(Request $request, Response $response): Response
+    public function cancelSubscription(Request $request, Response $response, array $args): Response
     {
         $userId = $this->getUserId($request);
-        
+        $subscriptionId = $args['id'] ?? '';
+
         try {
-            $subscription = $this->subscriptionService->getUserSubscription($userId);
+            $success = $this->stripeService->cancelSubscription($subscriptionId, $userId);
             
-            if (!$subscription) {
+            if ($success) {
+                return $this->jsonResponse($response, [
+                    'success' => true,
+                    'message' => 'Abonnement annulé avec succès'
+                ]);
+            } else {
                 return $this->jsonResponse($response, [
                     'success' => false,
-                    'message' => 'Aucun abonnement trouvé'
-                ], 404);
+                    'message' => 'Erreur lors de l\'annulation de l\'abonnement'
+                ], 400);
             }
-
-            // Annuler l'abonnement Stripe
-            $stripeSubscription = Subscription::retrieve($subscription['stripe_subscription_id']);
-            $stripeSubscription->cancel();
-            
-            // Mettre à jour en base
-            $this->subscriptionService->cancelSubscription($userId);
-            
-            return $this->jsonResponse($response, [
-                'success' => true,
-                'message' => 'Abonnement annulé avec succès'
-            ]);
 
         } catch (\Exception $e) {
             return $this->jsonResponse($response, [
@@ -145,171 +100,168 @@ class SubscriptionController extends BaseController
         }
     }
 
-    public function history(Request $request, Response $response): Response
+    public function reactivateSubscription(Request $request, Response $response, array $args): Response
     {
-        $locale = $this->getLocale($request);
         $userId = $this->getUserId($request);
-        
-        $paymentHistory = $this->subscriptionService->getPaymentHistory($userId);
-
-        $data = [
-            'paymentHistory' => $paymentHistory,
-            'locale' => $locale,
-            'translations' => $this->translationService->getTranslations($locale, ['subscription', 'common'])
-        ];
-
-        return $this->render($response, 'subscription/history.twig', $data);
-    }
-
-    public function stripeWebhook(Request $request, Response $response): Response
-    {
-        $payload = $request->getBody()->getContents();
-        $sigHeader = $request->getHeaderLine('Stripe-Signature');
-        $webhookSecret = $_ENV['STRIPE_WEBHOOK_SECRET'];
+        $subscriptionId = $args['id'] ?? '';
 
         try {
-            $event = Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
-        } catch (\Exception $e) {
-            return $this->jsonResponse($response, [
-                'error' => 'Signature invalide'
-            ], 400);
-        }
-
-        switch ($event->type) {
-            case 'customer.subscription.created':
-                $this->handleSubscriptionCreated($event->data->object);
-                break;
-                
-            case 'customer.subscription.updated':
-                $this->handleSubscriptionUpdated($event->data->object);
-                break;
-                
-            case 'customer.subscription.deleted':
-                $this->handleSubscriptionDeleted($event->data->object);
-                break;
-                
-            case 'invoice.payment_succeeded':
-                $this->handlePaymentSucceeded($event->data->object);
-                break;
-                
-            case 'invoice.payment_failed':
-                $this->handlePaymentFailed($event->data->object);
-                break;
-        }
-
-        return $this->jsonResponse($response, ['received' => true]);
-    }
-
-    public function createPaymentIntent(Request $request, Response $response): Response
-    {
-        $data = $request->getParsedBody();
-        $amount = $data['amount'] ?? 0;
-        
-        try {
-            $paymentIntent = PaymentIntent::create([
-                'amount' => $amount,
-                'currency' => 'eur',
-                'automatic_payment_methods' => [
-                    'enabled' => true,
-                ],
-            ]);
-
-            return $this->jsonResponse($response, [
-                'success' => true,
-                'client_secret' => $paymentIntent->client_secret
-            ]);
+            $success = $this->stripeService->reactivateSubscription($subscriptionId, $userId);
+            
+            if ($success) {
+                return $this->jsonResponse($response, [
+                    'success' => true,
+                    'message' => 'Abonnement réactivé avec succès'
+                ]);
+            } else {
+                return $this->jsonResponse($response, [
+                    'success' => false,
+                    'message' => 'Erreur lors de la réactivation de l\'abonnement'
+                ], 400);
+            }
 
         } catch (\Exception $e) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'message' => 'Erreur lors de la création du paiement: ' . $e->getMessage()
+                'message' => 'Erreur lors de la réactivation: ' . $e->getMessage()
             ], 400);
         }
     }
 
-    private function getOrCreateStripeCustomer($user): Customer
+    public function webhook(Request $request, Response $response): Response
     {
-        // Vérifier si le client existe déjà
-        $existingCustomers = Customer::all([
-            'email' => $user['email'],
-            'limit' => 1
-        ]);
+        $payload = $request->getBody()->getContents();
+        $signature = $request->getHeaderLine('Stripe-Signature');
 
-        if (!empty($existingCustomers->data)) {
-            return $existingCustomers->data[0];
+        try {
+            $success = $this->stripeService->handleWebhook($payload, $signature);
+            
+            if ($success) {
+                return $response->withStatus(200);
+            } else {
+                return $response->withStatus(400);
+            }
+
+        } catch (\Exception $e) {
+            error_log('Erreur webhook: ' . $e->getMessage());
+            return $response->withStatus(400);
         }
-
-        // Créer un nouveau client
-        return Customer::create([
-            'email' => $user['email'],
-            'name' => $user['name'],
-            'metadata' => [
-                'user_id' => $user['id']
-            ]
-        ]);
     }
 
-    private function attachPaymentMethod(string $customerId, string $paymentMethodId): void
+    public function getSubscription(Request $request, Response $response, array $args): Response
     {
-        $paymentMethod = \Stripe\PaymentMethod::retrieve($paymentMethodId);
-        $paymentMethod->attach([
-            'customer' => $customerId,
-        ]);
+        $userId = $this->getUserId($request);
+        $subscriptionId = $args['id'] ?? '';
+
+        try {
+            $subscription = $this->stripeService->getSubscription($subscriptionId, $userId);
+            
+            if ($subscription) {
+                return $this->jsonResponse($response, [
+                    'success' => true,
+                    'subscription' => $subscription
+                ]);
+            } else {
+                return $this->jsonResponse($response, [
+                    'success' => false,
+                    'message' => 'Abonnement non trouvé'
+                ], 404);
+            }
+
+        } catch (\Exception $e) {
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'message' => 'Erreur lors de la récupération de l\'abonnement: ' . $e->getMessage()
+            ], 400);
+        }
     }
 
-    private function createStripeSubscription(string $customerId, string $planId): Subscription
+    public function billing(Request $request, Response $response): Response
     {
-        return Subscription::create([
-            'customer' => $customerId,
-            'items' => [
-                ['price' => $planId],
+        $locale = $this->getLocale($request);
+        $userId = $this->getUserId($request);
+        
+        $subscriptions = $this->stripeService->getUserSubscriptions($userId);
+        $currentSubscription = $this->getCurrentSubscription($subscriptions);
+
+        $data = [
+            'subscriptions' => $subscriptions,
+            'currentSubscription' => $currentSubscription,
+            'locale' => $locale,
+            'translations' => $this->translationService->getTranslations($locale, ['subscription', 'common'])
+        ];
+
+        return $this->render($response, 'subscription/billing.twig', $data);
+    }
+
+    public function plans(Request $request, Response $response): Response
+    {
+        $locale = $this->getLocale($request);
+        $userId = $this->getUserId($request);
+        
+        $currentSubscription = $this->getCurrentSubscription($this->stripeService->getUserSubscriptions($userId));
+        $currentPlanType = $currentSubscription['plan_type'] ?? 'free';
+
+        $plans = [
+            'free' => [
+                'name' => 'Gratuit',
+                'price' => '0€',
+                'period' => 'pour toujours',
+                'features' => [
+                    '1 planning de repas',
+                    '7 jours de planning',
+                    'Recettes de base',
+                    'Support communautaire'
+                ],
+                'limits' => $this->stripeService->getSubscriptionLimits('free')
             ],
-            'payment_behavior' => 'default_incomplete',
-            'payment_settings' => ['save_default_payment_method' => 'on_subscription'],
-            'expand' => ['latest_invoice.payment_intent'],
-        ]);
+            'monthly' => [
+                'name' => 'Mensuel',
+                'price' => '9.99€',
+                'period' => 'par mois',
+                'features' => [
+                    'Plannings illimités',
+                    'Planning annuel',
+                    'Toutes les recettes',
+                    'Export PDF',
+                    'Support email'
+                ],
+                'limits' => $this->stripeService->getSubscriptionLimits('monthly')
+            ],
+            'yearly' => [
+                'name' => 'Annuel',
+                'price' => '99.99€',
+                'period' => 'par an',
+                'features' => [
+                    'Plannings illimités',
+                    'Planning annuel',
+                    'Toutes les recettes',
+                    'Export PDF',
+                    'Support prioritaire',
+                    'Économisez 20%'
+                ],
+                'limits' => $this->stripeService->getSubscriptionLimits('yearly')
+            ]
+        ];
+
+        $data = [
+            'plans' => $plans,
+            'currentPlanType' => $currentPlanType,
+            'locale' => $locale,
+            'translations' => $this->translationService->getTranslations($locale, ['subscription', 'common'])
+        ];
+
+        return $this->render($response, 'subscription/plans.twig', $data);
     }
 
-    private function handleSubscriptionCreated($subscription): void
+    private function getCurrentSubscription(array $subscriptions): array
     {
-        $this->subscriptionService->updateSubscriptionStatus(
-            $subscription->customer,
-            $subscription->id,
-            $subscription->status
-        );
-    }
-
-    private function handleSubscriptionUpdated($subscription): void
-    {
-        $this->subscriptionService->updateSubscriptionStatus(
-            $subscription->customer,
-            $subscription->id,
-            $subscription->status
-        );
-    }
-
-    private function handleSubscriptionDeleted($subscription): void
-    {
-        $this->subscriptionService->cancelSubscriptionByStripeId($subscription->id);
-    }
-
-    private function handlePaymentSucceeded($invoice): void
-    {
-        $this->subscriptionService->recordPayment(
-            $invoice->customer,
-            $invoice->subscription,
-            $invoice->amount_paid,
-            'succeeded'
-        );
-    }
-
-    private function handlePaymentFailed($invoice): void
-    {
-        $this->subscriptionService->recordPayment(
-            $invoice->customer,
-            $invoice->subscription,
-            $invoice->amount_due,
-            'failed'
-        );
+        foreach ($subscriptions as $subscription) {
+            if ($subscription['status'] === 'active') {
+                return $subscription;
+            }
+        }
+        
+        return [];
     }
 }

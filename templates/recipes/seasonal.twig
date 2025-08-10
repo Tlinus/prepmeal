@@ -1,0 +1,188 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ translations.recipes.seasonal_recipes }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Navigation -->
+    <div class="mb-6">
+        <a href="/recipes" class="text-blue-600 hover:text-blue-800 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            {{ translations.recipes.back_to_recipes }}
+        </a>
+    </div>
+
+    <!-- En-tête saisonnier -->
+    <div class="mb-8">
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ translations.recipes.seasonal_recipes }}</h1>
+                <p class="text-gray-600 mt-2">{{ translations.recipes.seasonal_subtitle }}</p>
+            </div>
+        </div>
+        
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <p class="text-green-800">
+                <span class="font-medium">{{ translations.recipes.current_season }}:</span> 
+                <span class="italic">{{ seasonInfo.name }}</span>
+            </p>
+            <p class="text-green-700 text-sm mt-1">{{ seasonInfo.description }}</p>
+        </div>
+    </div>
+
+    <!-- Sélecteur de saison -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ translations.recipes.choose_season }}</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="/recipes/seasonal?season=spring" 
+               class="p-4 border-2 rounded-lg text-center transition-colors {{ season == 'spring' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300' }}">
+                <div class="text-2xl mb-2">🌸</div>
+                <div class="font-medium text-gray-900">{{ translations.seasons.spring }}</div>
+                <div class="text-sm text-gray-600">{{ translations.recipes.march_may }}</div>
+            </a>
+            
+            <a href="/recipes/seasonal?season=summer" 
+               class="p-4 border-2 rounded-lg text-center transition-colors {{ season == 'summer' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300' }}">
+                <div class="text-2xl mb-2">☀️</div>
+                <div class="font-medium text-gray-900">{{ translations.seasons.summer }}</div>
+                <div class="text-sm text-gray-600">{{ translations.recipes.june_august }}</div>
+            </a>
+            
+            <a href="/recipes/seasonal?season=autumn" 
+               class="p-4 border-2 rounded-lg text-center transition-colors {{ season == 'autumn' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-300' }}">
+                <div class="text-2xl mb-2">🍂</div>
+                <div class="font-medium text-gray-900">{{ translations.seasons.autumn }}</div>
+                <div class="text-sm text-gray-600">{{ translations.recipes.september_november }}</div>
+            </a>
+            
+            <a href="/recipes/seasonal?season=winter" 
+               class="p-4 border-2 rounded-lg text-center transition-colors {{ season == 'winter' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300' }}">
+                <div class="text-2xl mb-2">❄️</div>
+                <div class="font-medium text-gray-900">{{ translations.seasons.winter }}</div>
+                <div class="text-sm text-gray-600">{{ translations.recipes.december_february }}</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Ingrédients de saison -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ translations.recipes.seasonal_ingredients }}</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {% for ingredient in seasonalIngredients %}
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-2xl mb-2">{{ ingredient.icon }}</div>
+                <div class="text-sm font-medium text-gray-900">{{ ingredient.name }}</div>
+                <div class="text-xs text-gray-600">{{ ingredient.peak_months }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recettes de saison -->
+    {% if recipes %}
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ translations.recipes.seasonal_recipes_list }}</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for recipe in recipes %}
+            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="relative">
+                    {% if recipe.image %}
+                    <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="w-full h-48 object-cover">
+                    {% else %}
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-400">{{ translations.recipes.no_image }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Badge saisonnier -->
+                    <div class="absolute top-2 left-2">
+                        <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                            {{ translations.recipes.seasonal }}
+                        </span>
+                    </div>
+                    
+                    {% if recipe.is_favorite %}
+                    <div class="absolute top-2 right-2">
+                        <span class="bg-red-500 text-white p-2 rounded-full">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg text-gray-900 mb-2">{{ recipe.title }}</h3>
+                    
+                    <div class="flex items-center text-sm text-gray-600 mb-3">
+                        <span class="mr-4">{{ recipe.cooking_time }} {{ translations.recipes.minutes }}</span>
+                        <span class="mr-4">{{ recipe.difficulty }}</span>
+                        <span>{{ recipe.servings }} {{ translations.recipes.servings }}</span>
+                    </div>
+
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ recipe.description }}</p>
+
+                    <div class="flex justify-between items-center">
+                        <a href="/recipes/{{ recipe.id }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                            {{ translations.recipes.view_recipe }}
+                        </a>
+                        
+                        <button class="text-gray-400 hover:text-red-500 transition-colors" 
+                                onclick="toggleFavorite({{ recipe.id }})">
+                            <svg class="w-5 h-5" fill="{{ recipe.is_favorite ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ translations.recipes.no_seasonal_recipes }}</h3>
+        <p class="text-gray-600">{{ translations.recipes.try_different_season_or_browse_all }}</p>
+        
+        <div class="mt-6">
+            <a href="/recipes" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                {{ translations.recipes.browse_all_recipes }}
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleFavorite(recipeId) {
+    fetch(`/recipes/${recipeId}/favorite`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+{% endblock %}

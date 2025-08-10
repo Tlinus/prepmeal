@@ -1,0 +1,257 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ translations.meal_planning.my_plans|default('Mes plannings') }} - PrepMeal{% endblock %}
+
+{% block head %}
+<style>
+    .plan-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .plan-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .plan-header {
+        background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+        border-radius: 10px 10px 0 0;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .plan-stats {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .plan-actions {
+        border-top: 1px solid #e9ecef;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold">
+                        <i class="fas fa-calendar-alt me-3"></i>{{ translations.meal_planning.my_plans|default('Mes plannings') }}
+                    </h1>
+                    <p class="text-muted">Gérez et consultez vos plannings de repas</p>
+                </div>
+                <a href="/meal-planning" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>{{ translations.meal_planning.generate_plan|default('Nouveau planning') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plans List -->
+    {% if plans %}
+    <div class="row g-4">
+        {% for plan in plans %}
+        <div class="col-lg-6 col-xl-4">
+            <div class="plan-card">
+                <div class="plan-header">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="mb-0 fw-bold">{{ plan.title|default('Planning ' ~ plan.id) }}</h5>
+                        <span class="badge bg-{{ plan.status == 'active' ? 'success' : 'secondary' }} rounded-pill">
+                            {{ plan.status|default('active')|title }}
+                        </span>
+                    </div>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ plan.start_date|date('d/m/Y') }} - {{ plan.end_date|date('d/m/Y') }}
+                    </p>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Plan Stats -->
+                    <div class="plan-stats">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ plan.total_days|default(7) }}</div>
+                                    <div class="stat-label">Jours</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ plan.total_meals|default(21) }}</div>
+                                    <div class="stat-label">Repas</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ plan.unique_recipes|default(15) }}</div>
+                                    <div class="stat-label">Recettes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plan Preferences -->
+                    {% if plan.preferences %}
+                    <div class="mb-3">
+                        <h6 class="fw-semibold mb-2">
+                            <i class="fas fa-cog me-1"></i>{{ translations.meal_planning.preferences|default('Préférences') }}
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if plan.preferences.diet_type %}
+                            <span class="badge bg-primary">{{ translations.meal_planning.diet_type[plan.preferences.diet_type]|default(plan.preferences.diet_type) }}</span>
+                            {% endif %}
+                            {% if plan.preferences.period %}
+                            <span class="badge bg-info">{{ translations.meal_planning.period[plan.preferences.period]|default(plan.preferences.period) }}</span>
+                            {% endif %}
+                            {% if plan.preferences.servings %}
+                            <span class="badge bg-warning">{{ plan.preferences.servings }} {{ translations.meal_planning.servings.persons|default('personnes') }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Recent Meals Preview -->
+                    {% if plan.recent_meals %}
+                    <div class="mb-3">
+                        <h6 class="fw-semibold mb-2">
+                            <i class="fas fa-utensils me-1"></i>{{ translations.meal_planning.recent_meals|default('Repas récents') }}
+                        </h6>
+                        <div class="list-group list-group-flush">
+                            {% for meal in plan.recent_meals|slice(0, 3) %}
+                            <div class="list-group-item px-0 py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-medium">{{ meal.title }}</span>
+                                    <small class="text-muted">{{ meal.date|date('d/m') }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="plan-actions">
+                    <div class="d-flex gap-2">
+                        <a href="/meal-planning/{{ plan.id }}" class="btn btn-primary btn-sm flex-fill">
+                            <i class="fas fa-eye me-1"></i>{{ translations.common.view|default('Voir') }}
+                        </a>
+                        <a href="/meal-planning/{{ plan.id }}/shopping-list" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-shopping-cart"></i>
+                        </a>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="/export/meal-plan/{{ plan.id }}">
+                                        <i class="fas fa-file-pdf me-2"></i>{{ translations.common.export|default('Exporter') }} PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/export/meal-plan/{{ plan.id }}?format=ical">
+                                        <i class="fas fa-calendar me-2"></i>{{ translations.common.export|default('Exporter') }} iCal
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button class="dropdown-item text-danger" onclick="deletePlan('{{ plan.id }}')">
+                                        <i class="fas fa-trash me-2"></i>{{ translations.common.delete|default('Supprimer') }}
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <i class="fas fa-calendar-plus"></i>
+        <h3 class="mb-3">{{ translations.meal_planning.no_plans|default('Aucun planning créé') }}</h3>
+        <p class="lead mb-4">
+            {{ translations.meal_planning.no_plans_message|default('Vous n\'avez pas encore créé de planning de repas. Commencez par générer votre premier planning personnalisé !') }}
+        </p>
+        <a href="/meal-planning" class="btn btn-primary btn-lg">
+            <i class="fas fa-magic me-2"></i>{{ translations.meal_planning.generate_plan|default('Créer mon premier planning') }}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function deletePlan(planId) {
+    if (confirm('{{ translations.meal_planning.confirm_delete|default("Êtes-vous sûr de vouloir supprimer ce planning ?") }}')) {
+        fetch(`/meal-planning/${planId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('{{ translations.meal_planning.delete_error|default("Erreur lors de la suppression") }}: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('{{ translations.meal_planning.delete_error|default("Erreur lors de la suppression") }}: ' + error.message);
+        });
+    }
+}
+
+// Auto-refresh plans every 5 minutes
+setInterval(function() {
+    // Only refresh if user is on this page and not actively interacting
+    if (document.visibilityState === 'visible') {
+        // Could implement a more sophisticated refresh here
+    }
+}, 300000);
+</script>
+{% endblock %}

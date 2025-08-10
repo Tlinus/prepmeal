@@ -1,0 +1,140 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}{{ translations.recipes.my_favorites }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-3xl font-bold text-gray-900">{{ translations.recipes.my_favorites }}</h1>
+            <a href="/recipes" class="text-blue-600 hover:text-blue-800">
+                {{ translations.recipes.browse_all_recipes }}
+            </a>
+        </div>
+        <p class="text-gray-600">{{ translations.recipes.favorites_subtitle }}</p>
+    </div>
+
+    {% if recipes %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for recipe in recipes %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="relative">
+                {% if recipe.image %}
+                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <span class="text-gray-400">{{ translations.recipes.no_image }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Badge favori -->
+                <div class="absolute top-2 right-2">
+                    <span class="bg-red-500 text-white p-2 rounded-full">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <h3 class="font-semibold text-lg text-gray-900 mb-2">{{ recipe.title }}</h3>
+                
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                    <span class="mr-4">{{ recipe.cooking_time }} {{ translations.recipes.minutes }}</span>
+                    <span class="mr-4">{{ recipe.difficulty }}</span>
+                    <span>{{ recipe.servings }} {{ translations.recipes.servings }}</span>
+                </div>
+
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ recipe.description }}</p>
+
+                <div class="flex justify-between items-center">
+                    <a href="/recipes/{{ recipe.id }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        {{ translations.recipes.view_recipe }}
+                    </a>
+                    
+                    <button class="text-red-500 hover:text-red-700 transition-colors" 
+                            onclick="removeFavorite({{ recipe.id }})"
+                            title="{{ translations.recipes.remove_from_favorites }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Actions en lot -->
+    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ translations.recipes.bulk_actions }}</h3>
+        <div class="flex flex-wrap gap-4">
+            <button onclick="addAllToMealPlan()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                {{ translations.recipes.add_all_to_meal_plan }}
+            </button>
+            <button onclick="generateShoppingList()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors">
+                {{ translations.recipes.generate_shopping_list }}
+            </button>
+            <button onclick="exportFavorites()" class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors">
+                {{ translations.recipes.export_favorites }}
+            </button>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4 4 0 000 6.364L12 20.364l7.682-7.682a4 4 0 00-6.364-6.364L12 7.636l-1.318-1.318a4 4 0 00-6.364 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ translations.recipes.no_favorites_yet }}</h3>
+        <p class="text-gray-600 mb-6">{{ translations.recipes.start_adding_favorites }}</p>
+        
+        <div class="space-y-3">
+            <a href="/recipes" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                {{ translations.recipes.browse_recipes }}
+            </a>
+            <p class="text-sm text-gray-500">{{ translations.recipes.click_heart_to_add }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function removeFavorite(recipeId) {
+    if (confirm('{{ translations.recipes.confirm_remove_favorite }}')) {
+        fetch(`/recipes/${recipeId}/favorite`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+}
+
+function addAllToMealPlan() {
+    // Implémenter l'ajout en lot au plan de repas
+    alert('{{ translations.recipes.feature_coming_soon }}');
+}
+
+function generateShoppingList() {
+    // Implémenter la génération de liste de courses
+    alert('{{ translations.recipes.feature_coming_soon }}');
+}
+
+function exportFavorites() {
+    // Implémenter l'export des favoris
+    alert('{{ translations.recipes.feature_coming_soon }}');
+}
+</script>
+{% endblock %}

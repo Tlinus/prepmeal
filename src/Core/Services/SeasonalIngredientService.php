@@ -77,10 +77,7 @@ class SeasonalIngredientService
         ];
     }
 
-    public function getSeasonalIngredients(string $season): array
-    {
-        return $this->seasonalIngredients[$season] ?? [];
-    }
+
 
     public function getAllSeasonalIngredients(): array
     {
@@ -104,8 +101,13 @@ class SeasonalIngredientService
 
     public function getCurrentSeasonalIngredients(): array
     {
-        $currentSeason = $this->getCurrentSeason();
-        return $this->getSeasonalIngredients($currentSeason);
+        try {
+            $currentSeason = $this->getCurrentSeason();
+            return $this->getSeasonalIngredients($currentSeason);
+        } catch (\PDOException $e) {
+            // Si les tables n'existent pas encore, retourner un tableau vide
+            return [];
+        }
     }
 
     public function isIngredientSeasonal(string $ingredientName, string $season): bool
@@ -214,5 +216,120 @@ class SeasonalIngredientService
         ];
         
         return $suggestions[$season] ?? [];
+    }
+
+    public function getAllAllergens(): array
+    {
+        return [
+            'gluten' => ['fr' => 'Gluten', 'en' => 'Gluten', 'es' => 'Gluten', 'de' => 'Gluten'],
+            'lactose' => ['fr' => 'Lactose', 'en' => 'Lactose', 'es' => 'Lactosa', 'de' => 'Laktose'],
+            'fruits_coque' => ['fr' => 'Fruits à coque', 'en' => 'Tree nuts', 'es' => 'Frutos secos', 'de' => 'Schalenfrüchte'],
+            'oeufs' => ['fr' => 'Œufs', 'en' => 'Eggs', 'es' => 'Huevos', 'de' => 'Eier'],
+            'soja' => ['fr' => 'Soja', 'en' => 'Soy', 'es' => 'Soja', 'de' => 'Soja'],
+            'poisson' => ['fr' => 'Poisson', 'en' => 'Fish', 'es' => 'Pescado', 'de' => 'Fisch'],
+            'crustaces' => ['fr' => 'Crustacés', 'en' => 'Shellfish', 'es' => 'Crustáceos', 'de' => 'Krebstiere'],
+            'arachides' => ['fr' => 'Arachides', 'en' => 'Peanuts', 'es' => 'Cacahuetes', 'de' => 'Erdnüsse'],
+            'moutarde' => ['fr' => 'Moutarde', 'en' => 'Mustard', 'es' => 'Mostaza', 'de' => 'Senf'],
+            'celeri' => ['fr' => 'Céleri', 'en' => 'Celery', 'es' => 'Apio', 'de' => 'Sellerie'],
+            'sulfites' => ['fr' => 'Sulfites', 'en' => 'Sulfites', 'es' => 'Sulfitos', 'de' => 'Sulfite'],
+            'lupin' => ['fr' => 'Lupin', 'en' => 'Lupin', 'es' => 'Altramuces', 'de' => 'Lupinen'],
+            'mollusques' => ['fr' => 'Mollusques', 'en' => 'Molluscs', 'es' => 'Moluscos', 'de' => 'Weichtiere']
+        ];
+    }
+
+    public function getSeasonalIngredients(string $season, array $excludedAllergens = []): array
+    {
+        $ingredients = $this->seasonalIngredients[$season] ?? [];
+        
+        if (empty($excludedAllergens)) {
+            return $ingredients;
+        }
+
+        // Filtrer les ingrédients selon les allergènes exclus
+        $filteredIngredients = [];
+        foreach ($ingredients as $key => $names) {
+            $allergens = $this->getIngredientAllergens($key);
+            $hasExcludedAllergen = false;
+            
+            foreach ($excludedAllergens as $allergen) {
+                if (in_array($allergen, $allergens)) {
+                    $hasExcludedAllergen = true;
+                    break;
+                }
+            }
+            
+            if (!$hasExcludedAllergen) {
+                $filteredIngredients[$key] = $names;
+            }
+        }
+        
+        return $filteredIngredients;
+    }
+
+    public function getIngredientAllergens(string $ingredientKey): array
+    {
+        $allergensMap = [
+            'noix' => ['fruits_coque'],
+            'amande' => ['fruits_coque'],
+            'noisette' => ['fruits_coque'],
+            'pistache' => ['fruits_coque'],
+            'cacahuete' => ['arachides'],
+            'lait' => ['lactose'],
+            'fromage' => ['lactose'],
+            'yaourt' => ['lactose'],
+            'ble' => ['gluten'],
+            'seigle' => ['gluten'],
+            'orge' => ['gluten'],
+            'avoine' => ['gluten'],
+            'soja' => ['soja'],
+            'poisson' => ['poisson'],
+            'crevette' => ['crustaces'],
+            'crabe' => ['crustaces'],
+            'huitre' => ['mollusques'],
+            'moule' => ['mollusques'],
+            'moutarde' => ['moutarde'],
+            'celeri' => ['celeri'],
+            'sulfites' => ['sulfites'],
+            'lupin' => ['lupin']
+        ];
+        
+        return $allergensMap[$ingredientKey] ?? [];
+    }
+
+    public function saveUserPreferences(int $userId, array $preferences): bool
+    {
+        // Cette méthode devrait être implémentée pour sauvegarder en base de données
+        // Pour l'instant, on retourne true
+        return true;
+    }
+
+    public function getUserPreferences(int $userId): array
+    {
+        // Cette méthode devrait récupérer les préférences depuis la base de données
+        // Pour l'instant, on retourne des préférences par défaut
+        return [
+            'selected_ingredients' => [],
+            'excluded_allergens' => [],
+            'diet_type' => 'equilibre',
+            'servings' => 2,
+            'period' => 'week'
+        ];
+    }
+
+    public function getDietTypes(): array
+    {
+        return [
+            'prise_masse' => ['fr' => 'Prise de masse', 'en' => 'Muscle gain', 'es' => 'Ganancia muscular', 'de' => 'Muskelaufbau'],
+            'equilibre' => ['fr' => 'Équilibré', 'en' => 'Balanced', 'es' => 'Equilibrado', 'de' => 'Ausgewogen'],
+            'seche' => ['fr' => 'Sèche', 'en' => 'Cutting', 'es' => 'Definición', 'de' => 'Definition'],
+            'anti_cholesterol' => ['fr' => 'Anti-cholestérol', 'en' => 'Anti-cholesterol', 'es' => 'Anti-colesterol', 'de' => 'Anti-Cholesterin'],
+            'vegan' => ['fr' => 'Vegan', 'en' => 'Vegan', 'es' => 'Vegano', 'de' => 'Vegan'],
+            'vegetarien' => ['fr' => 'Végétarien', 'en' => 'Vegetarian', 'es' => 'Vegetariano', 'de' => 'Vegetarisch'],
+            'recettes_simples' => ['fr' => 'Recettes simples', 'en' => 'Simple recipes', 'es' => 'Recetas simples', 'de' => 'Einfache Rezepte'],
+            'cetogene' => ['fr' => 'Cétogène', 'en' => 'Ketogenic', 'es' => 'Cetogénico', 'de' => 'Ketogen'],
+            'paleo' => ['fr' => 'Paléo', 'en' => 'Paleo', 'es' => 'Paleo', 'de' => 'Paleo'],
+            'sans_gluten' => ['fr' => 'Sans gluten', 'en' => 'Gluten-free', 'es' => 'Sin gluten', 'de' => 'Glutenfrei'],
+            'mediterraneen' => ['fr' => 'Méditerranéen', 'en' => 'Mediterranean', 'es' => 'Mediterráneo', 'de' => 'Mediterran']
+        ];
     }
 }
